@@ -13,3 +13,9 @@ C'est un fichier unique : ouvre `index.html` dans un navigateur, ou héberge-le 
 - Réglages : « Forcer l'ambiance » pour prévisualiser chaque météo.
 
 La géolocalisation demande une page en `https` ou `localhost`.
+
+## Installation sur téléphone ou PC
+
+L'appli est installable (PWA) : menu du navigateur, « Installer l'application » ou « Ajouter à l'écran d'accueil ». Elle s'ouvre ensuite sans barre de navigateur, et garde en cache ses fichiers pour démarrer même hors connexion (la météo affichée est alors la dernière enregistrée).
+
+Pour publier une nouvelle version, change le nom du cache (`CACHE`) dans `sw.js`, par exemple `horloge-v2`.
