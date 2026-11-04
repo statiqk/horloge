@@ -18,4 +18,6 @@ La géolocalisation demande une page en `https` ou `localhost`.
 
 L'appli est installable (PWA) : menu du navigateur, « Installer l'application » ou « Ajouter à l'écran d'accueil ». Elle s'ouvre ensuite sans barre de navigateur, et garde en cache ses fichiers pour démarrer même hors connexion (la météo affichée est alors la dernière enregistrée).
 
-Pour publier une nouvelle version, change le nom du cache (`CACHE`) dans `sw.js`, par exemple `horloge-v2`.
+## Mises à jour automatiques
+
+Quand une nouvelle version est publiée, l'appli la détecte toute seule (au retour sur l'appli, au retour du réseau, puis toutes les 5 minutes), affiche « Mise à jour installée. Redémarrage… » et se recharge. Si le mode plein écran était actif, il est rétabli après le redémarrage. Il n'y a rien à faire au moment de publier : un simple commit sur `main` suffit.

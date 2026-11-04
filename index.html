@@ -558,7 +558,24 @@ requestAnimationFrame(frame);
 tick();setInterval(tick,1000);
 $('city').textContent=loc.name;$('mLoc').textContent=loc.name;
 syncTabs();resetIdle();load();
-if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+var ver=null,reloading=false;
+function stamp(){return fetch(location.pathname,{method:'HEAD',cache:'no-store'}).then(function(r){return r.headers.get('etag')||r.headers.get('last-modified')}).catch(function(){return null})}
+function applyUpdate(){
+if(reloading)return;
+try{var last=Number(sessionStorage.getItem('mh_rl')||0);if(Date.now()-last<60000)return;sessionStorage.setItem('mh_rl',String(Date.now()));sessionStorage.setItem('mh_fs',fs?'1':'0')}catch(e){}
+reloading=true;toast('Mise à jour installée. Redémarrage…');
+setTimeout(function(){location.reload()},1500)}
+function checkUpdate(){if(reloading||!/^https?:$/.test(location.protocol))return;stamp().then(function(t){if(!t)return;if(ver===null)ver=t;else if(t!==ver)applyUpdate()})}
+if(/^https?:$/.test(location.protocol)){
+checkUpdate();
+setInterval(checkUpdate,300000);
+window.addEventListener('online',checkUpdate);
+document.addEventListener('visibilitychange',function(){if(!document.hidden)checkUpdate()});
+if('serviceWorker' in navigator){
+var hadCtl=!!navigator.serviceWorker.controller;
+navigator.serviceWorker.addEventListener('controllerchange',function(){if(hadCtl)applyUpdate()});
+window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(reg){setInterval(function(){reg.update().catch(function(){})},300000)}).catch(function(){})})}}
+try{if(sessionStorage.getItem('mh_fs')==='1'){sessionStorage.removeItem('mh_fs');setFs(true)}}catch(e){}
 })();
 </script>
 </body>

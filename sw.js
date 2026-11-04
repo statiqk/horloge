@@ -18,6 +18,17 @@ self.addEventListener('fetch', function (e) {
   var u = new URL(req.url);
   var ok = u.origin === self.location.origin || HOSTS.indexOf(u.hostname) !== -1;
   if (!ok) return;
+  var isPage = req.mode === 'navigate' || u.pathname.slice(-1) === '/' || u.pathname.slice(-11) === 'index.html';
+  if (isPage) {
+    e.respondWith(fetch(req, { cache: 'no-cache' }).then(function (res) {
+      var copy = res.clone();
+      caches.open(CACHE).then(function (c) { c.put(req, copy); });
+      return res;
+    }).catch(function () {
+      return caches.match(req, { ignoreSearch: true }).then(function (hit) { return hit || caches.match('index.html'); });
+    }));
+    return;
+  }
   e.respondWith(caches.open(CACHE).then(function (c) {
     return c.match(req, { ignoreSearch: true }).then(function (hit) {
       var net = fetch(req).then(function (res) {
