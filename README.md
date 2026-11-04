@@ -9,7 +9,7 @@ C'est un fichier unique : ouvre `index.html` dans un navigateur, ou héberge-le 
 - Météo réelle via [Open-Meteo](https://open-meteo.com/), sans clé d'API, mise à jour toutes les 15 minutes.
 - Lieu par défaut : Grignols. Bouton de géolocalisation et recherche de ville dans les réglages.
 - Téléphone : un écran à la fois avec barre de navigation. Tablette : deux colonnes, panneau de droite masquable. PC : cartes de détails en colonne.
-- Mode plein écran : par bouton ou après inactivité (30 s, 1 min, 5 min ou jamais), avec écran maintenu allumé.
+- Mode plein écran : par bouton ou après inactivité (30 s, 1 min, 5 min ou jamais), avec écran maintenu allumé. Double-toucher pour quitter. En plein écran, une ligne d'infos change toutes les 30 secondes : ressenti et min/max, prochaine pluie, météo de demain.
 - Réglages : « Forcer l'ambiance » pour prévisualiser chaque météo.
 
 La géolocalisation demande une page en `https` ou `localhost`.

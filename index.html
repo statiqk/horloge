@@ -197,7 +197,9 @@ p{margin:0}
 .w.fs .hero{--al:center;align-items:center;flex:none}
 .w.fs .tprow{margin-top:5vh;justify-content:center}
 .w.fs .time{font-size:min(30vw,38vh)}
-.w.fs .hourly,.w.fs .side,.w.fs .nav,.w.fs #msg{display:none}
+.w.fs .hourly,.w.fs .side,.w.fs .nav,.w.fs #msg,.w.fs .cdn small{display:none}
+.fsinfo{display:none;font-size:clamp(18px,2.4vw,30px);margin-top:18px;min-height:1.4em;text-align:center;transition:opacity .4s}
+.w.fs .fsinfo{display:block}
 .w.fs .top{opacity:0;pointer-events:none}
 .w.fs{cursor:none}
 @media (prefers-reduced-motion:reduce){.cld,.birds span,.birds svg,.cn{animation:none}}
@@ -251,6 +253,7 @@ p{margin:0}
 <p class="date" id="d">&nbsp;</p>
 <div class="sbar"><div id="sb"></div></div>
 <div class="tprow"><p class="tp" id="tp">--°</p><p class="cdn"><span id="cd">Chargement…</span><small>Ressenti <span id="fe">--°</span> · <span id="hl">--</span></small></p></div>
+<p class="fsinfo" id="fsInfo"></p>
 </div>
 <p class="msg" id="msg" hidden></p>
 <div class="glass hourly" id="hr" aria-label="Prévisions des prochaines heures"></div>
@@ -300,7 +303,7 @@ p{margin:0}
 </div>
 </div>
 <div class="toast" id="toast" role="status"></div>
-<div class="hint" id="hint">Touchez l'écran pour quitter</div>
+<div class="hint" id="hint">Touchez deux fois l'écran pour quitter</div>
 
 <script>
 (function(){
@@ -318,6 +321,7 @@ var loc=jp(ls('mh_loc'))||DEF;
 if(typeof loc.lat!=='number'||typeof loc.lon!=='number')loc=DEF;
 var force=ls('mh_force')||'auto';
 var idle=ls('mh_idle')!==null?Number(ls('mh_idle')):60000;
+var slides=[],si=0,sT=null,lastTap=0,exitAt=0;
 var data=null,sceneKey='sun',view='home',tab='forecast',fs=false,nat=false,lock=null,idleT=null,loadT=null,lastOk=0;
 var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -351,6 +355,22 @@ function hm(s){return s.slice(11,16)}
 function mins(s){return Number(s.slice(11,13))*60+Number(s.slice(14,16))}
 function uvLabel(u){return u<3?'faible':(u<6?'modéré':(u<8?'élevé':'très élevé'))}
 
+function buildSlides(){
+if(!data)return [];
+var d=data.daily,cur=data.current,h=data.hourly,i=hourIdx(),out=[],rain=null,j,k,c,p;
+out.push('Ressenti '+Math.round(cur.apparent_temperature)+'° · Max '+Math.round(d.temperature_2m_max[0])+'° · Min '+Math.round(d.temperature_2m_min[0])+'°');
+for(j=0;j<24&&i+j<h.time.length;j++){k=i+j;c=wmo(h.weather_code[k],true).k;p=h.precipitation_probability?h.precipitation_probability[k]:0;
+if(c==='rain'||c==='storm'||c==='snow'||p>=60){rain={j:j,w:c==='snow'?'Neige':(c==='storm'?'Orage':'Pluie'),h:Number(h.time[k].slice(11,13))};break}}
+out.push(rain?(rain.j===0?rain.w+' en ce moment':rain.w+' prévue vers '+rain.h+' h'):'Pas de pluie prévue dans les 24 h');
+if(d.time.length>1){var tw=wmo(d.weather_code[1],true);out.push('Demain : '+tw.label+' · '+Math.round(d.temperature_2m_min[1])+'° / '+Math.round(d.temperature_2m_max[1])+'°')}
+return out}
+function showSlide(first){
+var el=$('fsInfo');if(!slides.length){el.textContent='';return}
+var txt=slides[si%slides.length];
+if(first){el.textContent=txt;el.style.opacity=1;return}
+el.style.opacity=0;setTimeout(function(){el.textContent=txt;el.style.opacity=1},400)}
+function startSlides(){stopSlides();si=0;showSlide(true);sT=setInterval(function(){si++;showSlide(false)},30000)}
+function stopSlides(){clearInterval(sT);sT=null}
 function render(){
 if(!data)return;
 var cur=data.current,day=cur.is_day===1,w=wmo(cur.weather_code,day),key=w.k,label=w.label,night=!day;
@@ -386,6 +406,7 @@ $('sr').textContent=hm(sr);$('ss').textContent=hm(ss);
 var f=(mins(cur.time)-mins(sr))/(mins(ss)-mins(sr)),dot=$('sd');
 if(f>=0&&f<=1){var u=1-f,x=u*u*8+2*u*f*70+f*f*132,y=u*u*44+2*u*f*(-16)+f*f*44;dot.setAttribute('cx',x);dot.setAttribute('cy',y);dot.setAttribute('visibility','visible')}else dot.setAttribute('visibility','hidden');
 var n=new Date();$('upd').textContent='mises à jour à '+pad(n.getHours())+':'+pad(n.getMinutes());
+slides=buildSlides();if(fs)showSlide(true);
 }
 
 function url(){return 'https://api.open-meteo.com/v1/forecast?latitude='+loc.lat+'&longitude='+loc.lon+'&current=temperature_2m,apparent_temperature,relative_humidity_2m,is_day,weather_code,wind_speed_10m,pressure_msl&hourly=temperature_2m,weather_code,precipitation_probability,is_day,uv_index,visibility&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max&timezone=auto&forecast_days=7&wind_speed_unit=kmh'}
@@ -469,12 +490,12 @@ res.appendChild(b)})
 
 function getLock(){try{if(navigator.wakeLock&&fs)navigator.wakeLock.request('screen').then(function(l){lock=l;l.addEventListener('release',function(){lock=null})}).catch(function(){})}catch(e){}}
 function releaseLock(){try{if(lock)lock.release()}catch(e){}lock=null}
+function showHint(){var h=$('hint');h.classList.remove('show');void h.offsetWidth;h.classList.add('show')}
 function setFs(on){
 fs=on;app.classList.toggle('fs',on);
 $('btnFs').firstChild.className='ti '+(on?'ti-arrows-minimize':'ti-arrows-maximize');
-var h=$('hint');h.classList.remove('show');
-if(on){void h.offsetWidth;h.classList.add('show');getLock()}
-else{releaseLock();if(nat&&document.fullscreenElement){nat=false;try{document.exitFullscreen()}catch(e){}}nat=false}
+if(on){showHint();getLock();startSlides()}
+else{$('hint').classList.remove('show');stopSlides();exitAt=Date.now();releaseLock();if(nat&&document.fullscreenElement){nat=false;try{document.exitFullscreen()}catch(e){}}nat=false}
 resetIdle()}
 function resetIdle(){clearTimeout(idleT);if(!fs&&idle>0)idleT=setTimeout(function(){if($('modal').hidden)setFs(true);else resetIdle()},idle)}
 $('btnFs').addEventListener('click',function(){
@@ -483,10 +504,13 @@ setFs(true);
 var el=document.documentElement;
 if(el.requestFullscreen){nat=true;el.requestFullscreen().catch(function(){nat=false})}
 });
+document.addEventListener('click',function(e){if(Date.now()-exitAt<500){e.stopPropagation();e.preventDefault()}},true);
 document.addEventListener('fullscreenchange',function(){if(!document.fullscreenElement&&nat){nat=false;if(fs)setFs(false)}});
 ['pointermove','pointerdown','keydown','wheel','touchstart'].forEach(function(n){
-document.addEventListener(n,function(){
-if(fs){if(n==='pointerdown'||n==='keydown'||n==='touchstart')setFs(false)}
+document.addEventListener(n,function(ev){
+if(fs){
+if(n==='pointerdown'){var now=Date.now();if(now-lastTap<450){lastTap=0;setFs(false)}else{lastTap=now;showHint()}}
+else if(n==='keydown'&&ev.key==='Escape')setFs(false)}
 else resetIdle()
 },{passive:true})});
 document.addEventListener('visibilitychange',function(){
