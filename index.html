@@ -89,7 +89,14 @@ p{margin:0}
 #home{flex:1;display:flex;flex-direction:column;min-height:0}
 .hero{flex:1;display:flex;flex-direction:column;align-items:var(--al,flex-start);padding-top:2vh;min-height:0}
 .time{font-size:min(clamp(88px,27vw,120px),22vh);font-weight:300;line-height:1;letter-spacing:-.045em;margin-top:10px;white-space:nowrap}
-.cn{animation:bl 1s steps(2) infinite}
+.time{font-variant-numeric:tabular-nums}
+.dg{display:inline-block;width:.6em;text-align:center;position:relative}
+.dg i{font-style:normal;display:inline-block}
+.dg i.out{position:absolute;top:0;left:0;right:0;animation:dout .5s ease forwards}
+.dg i.in{animation:din .5s ease both}
+@keyframes dout{to{opacity:0;transform:translateY(-.22em)}}
+@keyframes din{from{opacity:0;transform:translateY(.22em)}}
+.cn{display:inline-block;width:.32em;text-align:center;animation:bl 1s steps(2) infinite}
 @keyframes bl{50%{opacity:.25}}
 .date{font-size:clamp(19px,5vw,24px);margin-top:4px}
 .sbar{height:2px;width:120px;background:rgba(255,255,255,.3);border-radius:2px;margin-top:14px;flex:none}
@@ -202,7 +209,7 @@ p{margin:0}
 .w.fs .fsinfo{display:block}
 .w.fs .top{opacity:0;pointer-events:none}
 .w.fs{cursor:none}
-@media (prefers-reduced-motion:reduce){.cld,.birds span,.birds svg,.cn{animation:none}}
+@media (prefers-reduced-motion:reduce){.cld,.birds span,.birds svg,.cn,.dg i{animation:none}.dg i.out{display:none}}
 </style>
 </head>
 <body>
@@ -249,7 +256,7 @@ p{margin:0}
 <div class="cols">
 <section id="home">
 <div class="hero">
-<p class="time" id="t">00:00</p>
+<p class="time" id="t" role="timer" aria-label="00:00"><span class="dg"></span><span class="dg"></span><span class="cn">:</span><span class="dg"></span><span class="dg"></span></p>
 <p class="date" id="d">&nbsp;</p>
 <div class="sbar"><div id="sb"></div></div>
 <div class="tprow"><p class="tp" id="tp">--°</p><p class="cdn"><span id="cd">Chargement…</span><small>Ressenti <span id="fe">--°</span> · <span id="hl">--</span></small></p></div>
@@ -345,8 +352,19 @@ var KEYS={sun:['Ensoleillé','ti-sun'],cloud:['Nuageux','ti-cloud'],rain:['Pluie
 function setScene(key,night){sceneKey=key;app.setAttribute('data-w',key);app.setAttribute('data-n',(night||key==='night')?'1':'0')}
 (function(){var h=new Date().getHours();setScene(h<7||h>=18?'night':'sun',h<7||h>=18)})();
 
-function tick(){var n=new Date(),s=n.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
-$('t').innerHTML=pad(n.getHours())+'<span class="cn">:</span>'+pad(n.getMinutes());
+var slots=document.querySelectorAll('#t .dg');
+function setTime(hhmm){
+for(var k=0;k<4;k++){
+var sl=slots[k],ch=hhmm.charAt(k);
+if(sl.getAttribute('data-v')===ch)continue;
+var first=sl.getAttribute('data-v')===null;
+sl.setAttribute('data-v',ch);
+var old=sl.querySelector('i:not(.out)'),ni=document.createElement('i');
+ni.textContent=ch;if(!first)ni.className='in';
+if(old){old.className='out';(function(o){setTimeout(function(){if(o.parentNode)o.parentNode.removeChild(o)},520)})(old)}
+sl.appendChild(ni)}}
+function tick(){var n=new Date(),s=n.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}),hm4=pad(n.getHours())+pad(n.getMinutes());
+setTime(hm4);$('t').setAttribute('aria-label',hm4.slice(0,2)+':'+hm4.slice(2));
 $('d').textContent=s.charAt(0).toUpperCase()+s.slice(1);
 $('sb').style.width=(n.getSeconds()/60*100)+'%'}
 
