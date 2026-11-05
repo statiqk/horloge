@@ -689,7 +689,7 @@ var ac=window.AbortController?new AbortController():null,to=setTimeout(function(
 fetch(url(),ac?{signal:ac.signal}:undefined).then(function(r){if(!r.ok){if(r.status===400&&!noMin){noMin=true;retryNow=true}throw new Error('http '+r.status)}return r.json()}).then(function(j){
 clearTimeout(to);
 if(!j||!j.current||!j.hourly||!j.daily)throw new Error('format');
-data=j;lastOk=Date.now();ls(ckey(),JSON.stringify(j));showMsg('');render();loadAir();if(manual){manual=false;toast('Météo actualisée')}
+data=j;lastOk=Date.now();ls(ckey(),JSON.stringify(j));ls(ckey()+'_t',String(lastOk));showMsg('');render();loadAir();if(manual){manual=false;toast('Météo actualisée')}
 }).catch(function(){
 clearTimeout(to);if(retryNow){retryNow=false;load();return}
 if(manual){manual=false;toast('Actualisation impossible pour le moment')}
@@ -913,7 +913,9 @@ rafId=requestAnimationFrame(frame);
 
 tick();setInterval(tick,1000);
 $('city').textContent=loc.name;$('mLoc').textContent=loc.name;
-syncTabs();resetIdle();load();
+syncTabs();resetIdle();
+(function(){var c=jp(ls(ckey())),t=Number(ls(ckey()+'_t')||0);if(c&&c.current&&c.hourly&&c.daily&&Date.now()-t<3*3600000){try{data=c;render()}catch(e){data=null}}})();
+load();
 var ver=null,reloading=false;
 function stamp(){return fetch(location.pathname,{method:'HEAD',cache:'no-store'}).then(function(r){return r.headers.get('etag')||r.headers.get('last-modified')}).catch(function(){return null})}
 function applyUpdate(){
