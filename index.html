@@ -96,7 +96,7 @@ p{margin:0}
 .birds svg{animation:flap .45s ease-in-out infinite alternate;transform-origin:50% 100%}
 @keyframes fly{from{transform:translate(-40px,0)}to{transform:translate(110vw,-34px)}}
 @keyframes flap{to{transform:scaleY(.35)}}
-.cld{left:-300px;width:2000px;height:400px;opacity:0;transition:opacity 1.4s;filter:brightness(var(--cb));-webkit-mask-image:linear-gradient(transparent,#000 22%,#000 62%,transparent);mask-image:linear-gradient(transparent,#000 22%,#000 62%,transparent)}
+.cld{left:-300px;width:max(2000px,170vw);height:400px;opacity:0;transition:opacity 1.4s;filter:brightness(var(--cb));-webkit-mask-image:linear-gradient(transparent,#000 22%,#000 62%,transparent);mask-image:linear-gradient(transparent,#000 22%,#000 62%,transparent)}
 .cld svg{display:block}
 .lA{top:2vh;animation:dr1 calc(140s / var(--wk,1)) ease-in-out infinite alternate}
 .lB{top:12vh;animation:dr2 calc(110s / var(--wk,1)) ease-in-out infinite alternate}
@@ -281,14 +281,39 @@ p{margin:0}
 .w.nightdim.frozen .dim{opacity:max(var(--dim,.4),var(--nd,.5))}
 .w.frozen #home{transform:translate(var(--ox,0px),var(--oy,0px))}
 .w.frozen .cld,.w.frozen .birds span,.w.frozen .birds svg,.w.frozen #foreSvg,.w.frozen .heat{animation-play-state:paused}
+/* Boutons tactiles confortables */
+.pill{min-height:40px}
+.tabs button{min-height:40px}
+/* Téléphones en paysage et écrans peu hauts */
+@media (max-height:520px) and (min-width:600px){
+.hero{padding-top:0}
+.time{font-size:min(clamp(120px,16vw,230px),21vh);margin-top:4px}
+.date{font-size:clamp(16px,5vh,22px)}
+.sbar{margin-top:6px}
+.tp{font-size:clamp(44px,15vh,64px)}
+.cdn{font-size:15px;padding-bottom:4px}
+.tprow{margin-bottom:8px}
+.cols{gap:16px}
+.hourly{padding:6px 4px}
+.hourly div{font-size:12px;gap:1px;flex:1 0 50px}
+.hourly i{font-size:18px}
+.hourly small{display:none}
+.row{padding:5px 0;font-size:14px}
+.w.fs .time{font-size:min(22vw,26vh)}
+.w.fs .tprow{margin-top:2vh}
+.w.fs .tp{font-size:clamp(44px,14vh,64px)}
+.fsinfo{min-height:1.4em;margin-top:6px;font-size:clamp(14px,4.2vh,22px)}
+.hint{bottom:calc(8px + env(safe-area-inset-bottom));font-size:12px}
+.stale{top:calc(6px + env(safe-area-inset-top))}
+}
 @media (prefers-reduced-motion:reduce){#foreSvg,.heat,.cld,.birds span,.birds svg,.cn,.dg i{animation:none}.dg i.out{display:none}}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-<filter id="fL" filterUnits="userSpaceOnUse" x="0" y="0" width="2000" height="400" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.008 0.017" numOctaves="5" seed="4" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 .55 0 0 .5  0 .55 0 0 .5  0 .55 0 0 .52  2.4 0 0 0 -.9"/></filter>
-<filter id="fM" filterUnits="userSpaceOnUse" x="0" y="0" width="2000" height="400" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.007 0.015" numOctaves="5" seed="11" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 .6 0 0 .46  0 .6 0 0 .46  0 .6 0 0 .5  2.7 0 0 0 -.85"/></filter>
-<filter id="fD" filterUnits="userSpaceOnUse" x="0" y="0" width="2000" height="400" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.006 0.013" numOctaves="5" seed="23" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 .6 0 0 .42  0 .6 0 0 .42  0 .6 0 0 .46  3.2 0 0 0 -.95"/></filter>
+<filter id="fL" filterUnits="userSpaceOnUse" x="0" y="0" width="6000" height="400" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.008 0.017" numOctaves="5" seed="4" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 .55 0 0 .5  0 .55 0 0 .5  0 .55 0 0 .52  2.4 0 0 0 -.9"/></filter>
+<filter id="fM" filterUnits="userSpaceOnUse" x="0" y="0" width="6000" height="400" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.007 0.015" numOctaves="5" seed="11" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 .6 0 0 .46  0 .6 0 0 .46  0 .6 0 0 .5  2.7 0 0 0 -.85"/></filter>
+<filter id="fD" filterUnits="userSpaceOnUse" x="0" y="0" width="6000" height="400" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.006 0.013" numOctaves="5" seed="23" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 .6 0 0 .42  0 .6 0 0 .42  0 .6 0 0 .46  3.2 0 0 0 -.95"/></filter>
 <filter id="rough" x="-5%" y="-10%" width="110%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" seed="8" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="22"/></filter>
 <filter id="fg"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
 </defs></svg>
@@ -300,9 +325,9 @@ p{margin:0}
 <div class="o sunw"><div class="bloom"></div><div class="disc"></div><div class="fl" style="left:-142px;top:73px;width:44px;height:44px"></div><div class="fl" style="left:-254px;top:126px;width:78px;height:78px"></div><div class="fl" style="left:-315px;top:220px;width:30px;height:30px"></div></div>
 <div class="o moonw"><div class="mglow" id="mglow"></div><div class="moonb"></div><div class="moon" id="moonD"></div></div>
 <div class="o birds"><span style="top:24vh;animation-duration:28s"><svg width="22" height="10" viewBox="0 0 22 10"><path d="M1 8 Q6 0 11 7 Q16 0 21 8" fill="none" stroke="#17283a" stroke-width="1.6" stroke-linecap="round"/></svg></span><span style="top:29vh;animation-duration:34s;animation-delay:-9s"><svg width="22" height="10" viewBox="0 0 22 10"><path d="M1 8 Q6 0 11 7 Q16 0 21 8" fill="none" stroke="#17283a" stroke-width="1.6" stroke-linecap="round"/></svg></span></div>
-<div class="cld lC"><svg width="2000" height="400"><rect width="2000" height="400" filter="url(#fD)"/></svg></div>
-<div class="cld lA"><svg width="2000" height="400"><rect width="2000" height="400" filter="url(#fL)"/></svg></div>
-<div class="cld lB"><svg width="2000" height="400"><rect width="2000" height="400" filter="url(#fM)"/></svg></div>
+<div class="cld lC"><svg width="100%" height="400"><rect width="100%" height="400" filter="url(#fD)"/></svg></div>
+<div class="cld lA"><svg width="100%" height="400"><rect width="100%" height="400" filter="url(#fL)"/></svg></div>
+<div class="cld lB"><svg width="100%" height="400"><rect width="100%" height="400" filter="url(#fM)"/></svg></div>
 <div class="ter">
 <svg viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true"><path class="p0" filter="url(#rough)" d="M-20 112 L70 84 L170 104 L290 52 L400 92 L520 44 L610 86 L740 40 L850 82 L940 56 L1020 90 L1020 300 L-20 300Z"/></svg>
 <svg viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true"><path class="p1" filter="url(#rough)" d="M-20 130 L100 98 L220 120 L370 66 L500 104 L660 58 L820 100 L1020 84 L1020 300 L-20 300Z"/><defs><linearGradient id="snowG" gradientUnits="userSpaceOnUse" x1="0" y1="50" x2="0" y2="92"><stop offset="0" stop-color="#f8fbff"/><stop offset=".5" stop-color="#f1f6fc"/><stop offset=".62" stop-color="#e4edf6" stop-opacity=".85"/><stop offset="1" stop-color="#e4edf6" stop-opacity="0"/></linearGradient></defs><path class="caps" filter="url(#rough)" fill="url(#snowG)" d="M-20 130 L100 98 L220 120 L370 66 L500 104 L660 58 L820 100 L1020 84 L1020 300 L-20 300Z"/></svg>
