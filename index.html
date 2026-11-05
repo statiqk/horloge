@@ -209,6 +209,7 @@ p{margin:0}
 .w.fs .fsinfo{display:block}
 .w.fs .top{opacity:0;pointer-events:none}
 .w.fs{cursor:none}
+.w.frozen .cld,.w.frozen .birds span,.w.frozen .birds svg{animation-play-state:paused}
 @media (prefers-reduced-motion:reduce){.cld,.birds span,.birds svg,.cn,.dg i{animation:none}.dg i.out{display:none}}
 </style>
 </head>
@@ -329,6 +330,7 @@ if(typeof loc.lat!=='number'||typeof loc.lon!=='number')loc=DEF;
 var force=ls('mh_force')||'auto';
 var idle=ls('mh_idle')!==null?Number(ls('mh_idle')):60000;
 var slides=[],si=0,sT=null,lastTap=0,exitAt=0;
+var FREEZE_MS=180000,frozen=false,rafId=0,frT=null;
 var data=null,sceneKey='sun',view='home',tab='forecast',fs=false,nat=false,lock=null,idleT=null,loadT=null,lastOk=0;
 var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -508,12 +510,15 @@ res.appendChild(b)})
 
 function getLock(){try{if(navigator.wakeLock&&fs)navigator.wakeLock.request('screen').then(function(l){lock=l;l.addEventListener('release',function(){lock=null})}).catch(function(){})}catch(e){}}
 function releaseLock(){try{if(lock)lock.release()}catch(e){}lock=null}
+function freeze(){frozen=true;app.classList.add('frozen');cancelAnimationFrame(rafId);fx.clearRect(0,0,Wd,Ht);$('fl').style.opacity=0;bolt=null}
+function unfreeze(){if(!frozen)return;frozen=false;app.classList.remove('frozen');rafId=requestAnimationFrame(frame)}
+function armFreeze(){clearTimeout(frT);if(fs)frT=setTimeout(freeze,FREEZE_MS)}
 function showHint(){var h=$('hint');h.classList.remove('show');void h.offsetWidth;h.classList.add('show')}
 function setFs(on){
 fs=on;app.classList.toggle('fs',on);
 $('btnFs').firstChild.className='ti '+(on?'ti-arrows-minimize':'ti-arrows-maximize');
-if(on){showHint();getLock();startSlides()}
-else{$('hint').classList.remove('show');stopSlides();exitAt=Date.now();releaseLock();if(nat&&document.fullscreenElement){nat=false;try{document.exitFullscreen()}catch(e){}}nat=false}
+if(on){showHint();getLock();startSlides();armFreeze()}
+else{$('hint').classList.remove('show');stopSlides();clearTimeout(frT);unfreeze();exitAt=Date.now();releaseLock();if(nat&&document.fullscreenElement){nat=false;try{document.exitFullscreen()}catch(e){}}nat=false}
 resetIdle()}
 function resetIdle(){clearTimeout(idleT);if(!fs&&idle>0)idleT=setTimeout(function(){if($('modal').hidden)setFs(true);else resetIdle()},idle)}
 $('btnFs').addEventListener('click',function(){
@@ -527,6 +532,7 @@ document.addEventListener('fullscreenchange',function(){if(!document.fullscreenE
 ['pointermove','pointerdown','keydown','wheel','touchstart'].forEach(function(n){
 document.addEventListener(n,function(ev){
 if(fs){
+if(n!=='pointermove'){unfreeze();armFreeze()}
 if(n==='pointerdown'){var now=Date.now();if(now-lastTap<450){lastTap=0;setFs(false)}else{lastTap=now;showHint()}}
 else if(n==='keydown'&&ev.key==='Escape')setFs(false)}
 else resetIdle()
@@ -596,8 +602,8 @@ if(sceneKey==='storm'&&!rm&&t>nextBolt){mk();bolt.t0=t;nextBolt=t+3500+R(0,5500)
 if(bolt){var a2=t-bolt.t0,it=a2<80?1:(a2<160?.15:(a2<280?.9:Math.max(0,1-(a2-280)/450)));
 if(a2>750){bolt=null}else{fo=it*.5;fx.save();fx.strokeStyle='rgba(236,243,255,'+it+')';fx.shadowBlur=20;fx.shadowColor='#9db8ff';fx.lineWidth=2;fx.lineJoin='round';path(fx,bolt.pts);fx.lineWidth=1;for(i2=0;i2<bolt.br.length;i2++)path(fx,bolt.br[i2]);fx.restore()}}
 $('fl').style.opacity=fo;
-requestAnimationFrame(frame)}
-requestAnimationFrame(frame);
+if(!frozen)rafId=requestAnimationFrame(frame)}
+rafId=requestAnimationFrame(frame);
 
 tick();setInterval(tick,1000);
 $('city').textContent=loc.name;$('mLoc').textContent=loc.name;
