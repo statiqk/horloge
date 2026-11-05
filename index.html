@@ -50,6 +50,7 @@
 .ti-x:before{content:"\eb55"}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:#0b1020;overscroll-behavior:none}
+@media (display-mode:standalone){.w{bottom:auto;height:100vh;height:max(100vh,100dvh)}}
 body{font-family:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
 button,input,select{font:inherit;color:inherit}
 button{cursor:pointer}
@@ -523,7 +524,8 @@ function applyLand(){
 var mo=new Date().getMonth();if(loc.lat<0)mo=(mo+6)%12;
 var p=PAL[mo],f=isNightScene?.3:({sun:1,cloud:.82,rain:.6,storm:.42,snow:1,night:.3}[sceneKey]||.8);
 app.style.setProperty('--dcA',shade(p[0],f));app.style.setProperty('--dcB',shade(p[1],f));app.style.setProperty('--dco',String(p[2]));
-app.setAttribute('data-cap',(mo>=10||mo<=2)?'1':'0')}
+app.setAttribute('data-cap',(mo>=10||mo<=2)?'1':'0');
+var gc=getComputedStyle(app).getPropertyValue('--m3').trim();if(gc){document.documentElement.style.backgroundColor=gc;document.body.style.backgroundColor=gc}}
 function fogApply(){
 var h=data.hourly,i=hourIdx(),v=h.visibility&&h.visibility[i]!=null?h.visibility[i]:null,c=data.current.weather_code,f=0;
 if(v!=null)f=v<500?1:(v<1500?.8:(v<4000?.5:(v<10000?.22:0)));
@@ -812,7 +814,7 @@ for(cx=-6;cx<W+10;cx+=11+R(0,13)){cr=8+R(0,11);cy=236-cr*.6-R(0,6);
 var seg='M'+(cx-cr)+' '+cy+'a'+cr+' '+cr+' 0 1 0 '+(2*cr)+' 0a'+cr+' '+cr+' 0 1 0 '+(-2*cr)+' 0z';
 if(ci++%2)db+=seg;else da+=seg}
 $('dcA').setAttribute('d',da);$('dcB').setAttribute('d',db)}
-function size(){Wd=window.innerWidth;Ht=window.innerHeight;dpr=(fs&&Wd*Ht>700000)?1:Math.min(window.devicePixelRatio||1,2);[bg,fgc].forEach(function(c){c.width=Wd*dpr;c.height=Ht*dpr});bx.setTransform(dpr,0,0,dpr,0,0);fx.setTransform(dpr,0,0,dpr,0,0)}
+function size(){Wd=app.clientWidth||window.innerWidth;Ht=app.clientHeight||window.innerHeight;dpr=(fs&&Wd*Ht>700000)?1:Math.min(window.devicePixelRatio||1,2);[bg,fgc].forEach(function(c){c.width=Wd*dpr;c.height=Ht*dpr});bx.setTransform(dpr,0,0,dpr,0,0);fx.setTransform(dpr,0,0,dpr,0,0)}
 size();buildFore();
 var rt=null;window.addEventListener('resize',function(){size();clearTimeout(rt);rt=setTimeout(buildFore,200)});
 
