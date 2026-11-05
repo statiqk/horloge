@@ -207,7 +207,7 @@ p{margin:0}
 .w.fs .hourly,.w.fs .side,.w.fs .nav,.w.fs #msg,.w.fs .cdn small{display:none}
 .stale{position:fixed;top:calc(14px + env(safe-area-inset-top));left:0;right:0;text-align:center;font-size:13px;opacity:.6;pointer-events:none;z-index:5}
 .stale[hidden]{display:none}
-.fsinfo{display:none;font-size:clamp(18px,2.4vw,30px);margin-top:18px;min-height:1.4em;text-align:center;transition:opacity .4s}
+.fsinfo{display:none;font-size:clamp(18px,2.4vw,30px);line-height:1.4;margin-top:18px;min-height:2.8em;max-width:90vw;text-align:center;transition:opacity .4s}
 .w.fs .fsinfo{display:block}
 .w.fs .top{opacity:0;pointer-events:none}
 .w.fs{cursor:none}
@@ -384,8 +384,9 @@ if(!data)return [];
 var d=data.daily,cur=data.current,h=data.hourly,i=hourIdx(),out=[],rain=null,j,k,c,p;
 out.push('Ressenti '+Math.round(cur.apparent_temperature)+'° · Max '+Math.round(d.temperature_2m_max[0])+'° · Min '+Math.round(d.temperature_2m_min[0])+'°');
 for(j=0;j<24&&i+j<h.time.length;j++){k=i+j;c=wmo(h.weather_code[k],true).k;p=h.precipitation_probability?h.precipitation_probability[k]:0;
-if(c==='rain'||c==='storm'||c==='snow'||p>=60){rain={j:j,w:c==='snow'?'Neige':(c==='storm'?'Orage':'Pluie'),h:Number(h.time[k].slice(11,13))};break}}
-out.push(rain?(rain.j===0?rain.w+' en ce moment':rain.w+' prévue vers '+rain.h+' h'):'Pas de pluie prévue dans les 24 h');
+if(c==='rain'||c==='storm'||c==='snow'||p>=60){rain={j:j,w:c==='snow'?'Neige':(c==='storm'?'Orage':'Pluie'),h:Number(h.time[k].slice(11,13)),tm:h.time[k].slice(0,10)!==h.time[i].slice(0,10)};break}}
+var cw=wmo(cur.weather_code,true).k,nowR=cw==='rain'||cw==='storm'||cw==='snow';
+out.push(nowR?(cw==='snow'?'Neige':(cw==='storm'?'Orage':'Pluie'))+' en ce moment':(rain?rain.w+' prévue '+(rain.tm?'demain ':'')+'vers '+rain.h+' h':'Pas de pluie prévue dans les 24 h'));
 if(d.time.length>1){var tw=wmo(d.weather_code[1],true);out.push('Demain : '+tw.label+' · '+Math.round(d.temperature_2m_min[1])+'° / '+Math.round(d.temperature_2m_max[1])+'°')}
 return out}
 function showSlide(first){
@@ -393,7 +394,7 @@ var el=$('fsInfo');if(!slides.length){el.textContent='';return}
 var txt=slides[si%slides.length];
 if(first){el.textContent=txt;el.style.opacity=1;return}
 el.style.opacity=0;setTimeout(function(){el.textContent=txt;el.style.opacity=1},400)}
-function startSlides(){stopSlides();si=0;showSlide(true);sT=setInterval(function(){si++;showSlide(false)},30000)}
+function startSlides(){stopSlides();si=0;showSlide(true);sT=setInterval(function(){si++;slides=buildSlides();showSlide(false)},30000)}
 function stopSlides(){clearInterval(sT);sT=null}
 function render(){
 if(!data)return;
