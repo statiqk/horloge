@@ -123,6 +123,7 @@ p{margin:0}
 .ter path{transition:fill 1.4s}
 .fog{opacity:calc(.6 + var(--fogv,0) * .4);left:0;right:0;height:30%;background:linear-gradient(180deg,transparent,var(--mist),transparent)}
 .flash{inset:0;background:#fff;opacity:0}
+.gfade{left:0;right:0;bottom:0;height:min(110px,14vh);background:linear-gradient(180deg,transparent,var(--bgc,#1f3d33));pointer-events:none}
 .vig{inset:0;background:radial-gradient(ellipse at 50% 38%,transparent 52%,rgba(0,0,0,.3) 100%)}
 .grain{inset:0;width:100%;height:100%;opacity:.07;mix-blend-mode:overlay}
 
@@ -342,7 +343,7 @@ p{margin:0}
 <div class="heat"></div>
 <canvas class="cv" id="fgc"></canvas>
 <div class="flash" id="fl"></div>
-<div class="vig"></div>
+<div class="vig"></div><div class="gfade"></div>
 <svg class="grain" aria-hidden="true"><rect width="100%" height="100%" filter="url(#fg)"/></svg>
 </div>
 
@@ -550,7 +551,7 @@ var mo=new Date().getMonth();if(loc.lat<0)mo=(mo+6)%12;
 var p=PAL[mo],f=isNightScene?.3:({sun:1,cloud:.82,rain:.6,storm:.42,snow:1,night:.3}[sceneKey]||.8);
 app.style.setProperty('--dcA',shade(p[0],f));app.style.setProperty('--dcB',shade(p[1],f));app.style.setProperty('--dco',String(p[2]));
 app.setAttribute('data-cap',(mo>=10||mo<=2)?'1':'0');
-var gc=getComputedStyle(app).getPropertyValue('--m3').trim();if(gc){document.documentElement.style.backgroundColor=gc;document.body.style.backgroundColor=gc}}
+var gc=getComputedStyle(app).getPropertyValue('--m3').trim();if(/^#[0-9a-f]{6}$/i.test(gc)){var bc=shade(gc,.78);app.style.setProperty('--bgc',bc);document.documentElement.style.backgroundColor=bc;document.body.style.backgroundColor=bc}}
 function fogApply(){
 var h=data.hourly,i=hourIdx(),v=h.visibility&&h.visibility[i]!=null?h.visibility[i]:null,c=data.current.weather_code,f=0;
 if(v!=null)f=v<500?1:(v<1500?.8:(v<4000?.5:(v<10000?.22:0)));
