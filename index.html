@@ -89,11 +89,14 @@ p{margin:0}
 #home{flex:1;display:flex;flex-direction:column;min-height:0}
 .hero{flex:1;display:flex;flex-direction:column;align-items:var(--al,flex-start);padding-top:2vh;min-height:0}
 .time{font-size:min(clamp(88px,27vw,120px),22vh);font-weight:300;line-height:1;letter-spacing:-.045em;margin-top:10px;white-space:nowrap}
-.time{font-variant-numeric:tabular-nums}
+.time{font-variant-numeric:proportional-nums}
 .dg{display:inline-block;width:.6em;text-align:center;position:relative}
 .dg i{font-style:normal;display:inline-block}
 .dg i.out{position:absolute;top:0;left:0;right:0;animation:dout .5s ease forwards}
 .dg i.in{animation:din .5s ease both}
+/* le 1 est étroit : on le rapproche du chiffre voisin pour un espacement optique régulier */
+.dg:nth-child(1) i.one,.dg:nth-child(4) i.one{margin-left:.06em}
+.dg:nth-child(2) i.one,.dg:nth-child(5) i.one{margin-right:.06em}
 @keyframes dout{to{opacity:0;transform:translateY(-.22em)}}
 @keyframes din{from{opacity:0;transform:translateY(.22em)}}
 .cn{display:inline-block;position:relative;top:-.09em;width:.32em;text-align:center;animation:bl 1s steps(2) infinite}
@@ -365,8 +368,8 @@ if(sl.getAttribute('data-v')===ch)continue;
 var first=sl.getAttribute('data-v')===null;
 sl.setAttribute('data-v',ch);
 var old=sl.querySelector('i:not(.out)'),ni=document.createElement('i');
-ni.textContent=ch;if(!first)ni.className='in';
-if(old){old.className='out';(function(o){setTimeout(function(){if(o.parentNode)o.parentNode.removeChild(o)},520)})(old)}
+ni.textContent=ch;ni.className=(first?'':'in')+(ch==='1'?' one':'');
+if(old){old.className='out'+(old.classList.contains('one')?' one':'');(function(o){setTimeout(function(){if(o.parentNode)o.parentNode.removeChild(o)},520)})(old)}
 sl.appendChild(ni)}}
 function stale(){var e=$('stale'),t='';if(fs&&data){var a=lastOk?Date.now()-lastOk:0;if(!lastOk)t='Hors connexion';else if(a>30*60000){var h=Math.floor(a/3600000);t='Données de il y a '+(h>=1?h+' h':Math.round(a/60000)+' min')}}if(e.textContent!==t){e.textContent=t;e.hidden=!t}}
 function tick(){stale();var n=new Date(),s=n.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}),hm4=pad(n.getHours())+pad(n.getMinutes());
