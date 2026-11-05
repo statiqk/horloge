@@ -38,3 +38,8 @@ Quand une nouvelle version est publiée, l'appli la détecte toute seule (au ret
 - **Mode nuit** : en plein écran, entre le coucher et le lever du soleil, l'écran s'assombrit (réglable ou désactivable dans les réglages).
 - **Qualité de l'air et pollens** : deux tuiles dans l'onglet Détails (indice européen, PM2,5 / PM10, pollens en saison), via Open-Meteo.
 - **Lancement en plein écran** : réglage « Au lancement de l'appli », ou lien `https://statiqk.github.io/horloge/?fs=1`. Sur Android, un appui long sur l'icône propose aussi « Plein écran ».
+
+## Soleil, lune et graphique de pluie
+
+- La phrase tournante du plein écran indique aussi « Coucher du soleil dans 2 h 58 » (ou le lever la nuit) et, la nuit, la phase de la lune avec son éclairement.
+- Quand de la pluie est en cours ou attendue, l'accueil affiche un petit graphique des 2 prochaines heures (un bâton par quart d'heure).

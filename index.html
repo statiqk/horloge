@@ -241,7 +241,12 @@ p{margin:0}
 .w.fs .hourly,.w.fs .side,.w.fs .nav,.w.fs #msg,.w.fs .cdn small{display:none}
 .stale{position:fixed;top:calc(14px + env(safe-area-inset-top));left:0;right:0;text-align:center;font-size:13px;opacity:.6;pointer-events:none;z-index:5}
 .stale[hidden]{display:none}
-.rs{display:inline-flex;align-items:center;gap:8px;font-size:14px;margin-top:10px;padding:6px 12px;border-radius:14px;background:rgba(0,0,0,.28)}
+.rs{display:flex;flex-direction:column;gap:6px;width:max-content;max-width:100%;font-size:14px;margin-top:10px;padding:8px 12px;border-radius:14px;background:rgba(0,0,0,.28)}
+.rsh{display:flex;align-items:center;gap:8px}
+.rs svg{display:block;width:160px;max-width:100%;height:30px}
+.rs svg rect{fill:#cfe3ff}
+.rsl{display:flex;justify-content:space-between;font-size:11px;opacity:.7;width:160px;max-width:100%}
+.rs.nochart svg,.rs.nochart .rsl{display:none}
 .rs[hidden]{display:none}
 .w.fs .rs{display:none}
 .fsinfo{display:none;font-size:clamp(18px,2.4vw,30px);line-height:1.4;margin-top:18px;min-height:2.8em;max-width:90vw;text-align:center;transition:opacity .4s;will-change:opacity;transform:translateZ(0)}
@@ -306,7 +311,7 @@ p{margin:0}
 <p class="date" id="d">&nbsp;</p>
 <div class="sbar"><div id="sb"></div></div>
 <div class="tprow"><p class="tp" id="tp">--°</p><p class="cdn"><span id="cd">Chargement…</span><small>Ressenti <span id="fe">--°</span> · <span id="hl">--</span></small></p></div>
-<p class="rs" id="rs" hidden><i class="ti ti-umbrella" aria-hidden="true"></i><span id="rsT"></span></p>
+<div class="rs" id="rs" hidden><div class="rsh"><i class="ti ti-umbrella" aria-hidden="true"></i><span id="rsT"></span></div><svg id="rsC" viewBox="0 0 160 30" width="160" height="30" aria-hidden="true"></svg><div class="rsl"><span>maintenant</span><span>+2 h</span></div></div>
 <p class="fsinfo" id="fsInfo"></p>
 <p class="stale" id="stale" hidden></p>
 </div>
@@ -456,12 +461,21 @@ var cw=data.current.weather_code,w=(data.current.temperature_2m<=0.5||(cw>=71&&c
 if(r.now)return w+' en ce moment'+(r.end!=null?' · fin dans '+fmtMin(r.end):'');
 if(r.inMin!=null)return w+' dans '+fmtMin(r.inMin);
 return null}
+function rainSeries(){
+var m=data&&data.minutely_15;if(!m||!m.time||!m.precipitation||!m.time.length)return [];
+var now=typeof data.utc_offset_seconds==='number'?Date.now()/60000+data.utc_offset_seconds/60:tmin(data.current.time),i,cur=-1;
+for(i=0;i<m.time.length;i++){if(tmin(m.time[i])>=now){cur=i;break}}
+if(cur<0)return [];
+return m.precipitation.slice(cur,cur+8).map(function(v){return Math.round((v||0)*10)/10})}
 var rsLast=null;
 function updRain(){
-var t=data?rainText():null;
-if(t===rsLast)return;rsLast=t;
+var t=data?rainText():null,ser=t?rainSeries():[],key=t+'|'+ser.join(',');
+if(key===rsLast)return;rsLast=key;
 var e=$('rs');if(!e)return;
-$('rsT').textContent=t||'';e.hidden=!t}
+$('rsT').textContent=t||'';e.hidden=!t;
+var any=ser.some(function(v){return v>=0.1});
+e.classList.toggle('nochart',!any);
+if(any){var h='',w=160/8,k;for(k=0;k<ser.length;k++){var v=ser[k],bh=v>=0.1?Math.max(4,Math.min(30,Math.sqrt(v/2)*30)):1.5;h+='<rect x="'+(k*w+2)+'" y="'+(30-bh)+'" width="'+(w-4)+'" height="'+bh+'" rx="2"/>'}$('rsC').innerHTML=h}}
 function aqiLabel(v){return v<20?'Bon':(v<40?'Correct':(v<60?'Moyen':(v<80?'Mauvais':(v<100?'Très mauvais':'Extrême'))))}
 function polLabel(v){return v<10?'faible':(v<50?'modéré':(v<200?'élevé':'très élevé'))}
 var POL=[['alder_pollen','aulne'],['birch_pollen','bouleau'],['grass_pollen','graminées'],['mugwort_pollen','armoise'],['olive_pollen','olivier'],['ragweed_pollen','ambroisie']];
@@ -477,6 +491,19 @@ if(Date.now()-airAt<30*60000)return;
 airAt=Date.now();
 var ac=window.AbortController?new AbortController():null,to=setTimeout(function(){if(ac)ac.abort()},12000);
 fetch('https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+loc.lat+'&longitude='+loc.lon+'&current=european_aqi,pm10,pm2_5,alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&timezone=auto',ac?{signal:ac.signal}:undefined).then(function(r){if(!r.ok)throw new Error('http');return r.json()}).then(function(j){clearTimeout(to);air=j;renderAir()}).catch(function(){clearTimeout(to);airAt=Date.now()-25*60000;air=null;renderAir()})}
+function nowLoc(){return typeof data.utc_offset_seconds==='number'?Date.now()/60000+data.utc_offset_seconds/60:tmin(data.current.time)}
+function fmtDur(m){m=Math.max(1,Math.round(m));var h=Math.floor(m/60);return h>0?h+' h '+pad(m%60):m+' min'}
+function moonInfo(){
+var d=Date.now()/86400000+2440587.5,ph=(((d-2451550.1)/29.530588853)%1+1)%1,il=Math.round((1-Math.cos(2*Math.PI*ph))/2*100),
+n=['Nouvelle lune','Premier croissant','Premier quartier','Gibbeuse croissante','Pleine lune','Gibbeuse décroissante','Dernier quartier','Dernier croissant'][Math.floor(ph*8+.5)%8];
+return n+' · '+il+' %'}
+function sunText(){
+var d=data.daily;if(!d||!d.sunrise||!d.sunset)return null;
+var now=nowLoc(),sr=tmin(d.sunrise[0]),ss=tmin(d.sunset[0]);
+if(now>=sr&&now<ss)return 'Coucher du soleil dans '+fmtDur(ss-now);
+if(now<sr)return 'Lever du soleil dans '+fmtDur(sr-now);
+if(d.sunrise[1])return 'Lever du soleil dans '+fmtDur(tmin(d.sunrise[1])-now);
+return null}
 function buildSlides(){
 if(!data)return [];
 var d=data.daily,cur=data.current,h=data.hourly,i=hourIdx(),out=[],rain=null,j,k,c,p;
@@ -486,6 +513,8 @@ if(c==='rain'||c==='storm'||c==='snow'||p>=60){rain={j:j,w:c==='snow'?'Neige':(c
 var cw=wmo(cur.weather_code,true).k,nowR=cw==='rain'||cw==='storm'||cw==='snow';
 var rt=rainText();
 out.push(rt?rt:nowR?(cw==='snow'?'Neige':(cw==='storm'?'Orage':'Pluie'))+' en ce moment':(rain?rain.w+' prévue '+(rain.tm?'demain ':'')+'vers '+rain.h+' h':'Pas de pluie prévue dans les 24 h'));
+var st=sunText();if(st)out.push(st);
+if(isNightNow())out.push(moonInfo());
 if(d.time.length>1){var tw=wmo(d.weather_code[1],true);out.push('Demain : '+tw.label+' · '+Math.round(d.temperature_2m_min[1])+'° / '+Math.round(d.temperature_2m_max[1])+'°')}
 return out}
 var slT=null;
