@@ -12,13 +12,40 @@
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>Météo Horloge</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/fonts/tabler-icons.woff2?v3.19.0" as="font" type="font/woff2" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="preload" href="fonts/bricolage-300.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/bricolage-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/tabler-icons.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+@font-face{font-family:'Bricolage Grotesque';font-weight:300;font-style:normal;font-display:swap;src:url(fonts/bricolage-300.woff2) format('woff2')}
+@font-face{font-family:'Bricolage Grotesque';font-weight:400;font-style:normal;font-display:swap;src:url(fonts/bricolage-400.woff2) format('woff2')}
+@font-face{font-family:'Bricolage Grotesque';font-weight:500;font-style:normal;font-display:swap;src:url(fonts/bricolage-500.woff2) format('woff2')}
+@font-face{font-family:'tabler-icons';font-weight:400;font-style:normal;font-display:block;src:url(fonts/tabler-icons.woff2) format('woff2')}
+.ti{font-family:'tabler-icons'!important;speak:none;font-style:normal;font-weight:normal;font-variant:normal;text-transform:none;line-height:1;-webkit-font-smoothing:antialiased}
+.ti-arrows-maximize:before{content:"\ea28"}
+.ti-arrows-minimize:before{content:"\ea29"}
+.ti-calendar-week:before{content:"\fd30"}
+.ti-cloud:before{content:"\ea76"}
+.ti-cloud-rain:before{content:"\ea72"}
+.ti-cloud-storm:before{content:"\ea74"}
+.ti-current-location:before{content:"\ecef"}
+.ti-droplet:before{content:"\ea97"}
+.ti-eye:before{content:"\ea9a"}
+.ti-gauge:before{content:"\eab1"}
+.ti-home:before{content:"\eac1"}
+.ti-layout-grid:before{content:"\edba"}
+.ti-layout-sidebar-right-collapse:before{content:"\f006"}
+.ti-layout-sidebar-right-expand:before{content:"\f007"}
+.ti-map-pin:before{content:"\eae8"}
+.ti-mist:before{content:"\ec30"}
+.ti-moon-stars:before{content:"\ece7"}
+.ti-settings:before{content:"\eb20"}
+.ti-snowflake:before{content:"\ec0b"}
+.ti-sun:before{content:"\eb30"}
+.ti-sun-high:before{content:"\f236"}
+.ti-sunset-2:before{content:"\f23a"}
+.ti-umbrella:before{content:"\ebf1"}
+.ti-wind:before{content:"\ec34"}
+.ti-x:before{content:"\eb55"}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:#0b1020;overscroll-behavior:none}
 body{font-family:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
@@ -210,6 +237,9 @@ p{margin:0}
 .w.fs .hourly,.w.fs .side,.w.fs .nav,.w.fs #msg,.w.fs .cdn small{display:none}
 .stale{position:fixed;top:calc(14px + env(safe-area-inset-top));left:0;right:0;text-align:center;font-size:13px;opacity:.6;pointer-events:none;z-index:5}
 .stale[hidden]{display:none}
+.rs{display:inline-flex;align-items:center;gap:8px;font-size:14px;margin-top:10px;padding:6px 12px;border-radius:14px;background:rgba(0,0,0,.28)}
+.rs[hidden]{display:none}
+.w.fs .rs{display:none}
 .fsinfo{display:none;font-size:clamp(18px,2.4vw,30px);line-height:1.4;margin-top:18px;min-height:2.8em;max-width:90vw;text-align:center;transition:opacity .4s;will-change:opacity;transform:translateZ(0)}
 .w.fs .fsinfo{display:block}
 .w.fs .top{opacity:0;pointer-events:none}
@@ -270,6 +300,7 @@ p{margin:0}
 <p class="date" id="d">&nbsp;</p>
 <div class="sbar"><div id="sb"></div></div>
 <div class="tprow"><p class="tp" id="tp">--°</p><p class="cdn"><span id="cd">Chargement…</span><small>Ressenti <span id="fe">--°</span> · <span id="hl">--</span></small></p></div>
+<p class="rs" id="rs" hidden><i class="ti ti-umbrella" aria-hidden="true"></i><span id="rsT"></span></p>
 <p class="fsinfo" id="fsInfo"></p>
 <p class="stale" id="stale" hidden></p>
 </div>
@@ -379,7 +410,7 @@ ni.textContent=ch;ni.className=(first?'':'in')+(ch==='1'?' one':'');
 if(old){old.className='out'+(old.classList.contains('one')?' one':'');(function(o){setTimeout(function(){if(o.parentNode)o.parentNode.removeChild(o)},520)})(old)}
 sl.appendChild(ni);if(k===3&&!first)shiftNow()}}
 function stale(){var e=$('stale'),t='';if(fs&&data){var a=lastOk?Date.now()-lastOk:0;if(!lastOk)t='Hors connexion';else if(a>30*60000){var h=Math.floor(a/3600000);t='Données de il y a '+(h>=1?h+' h':Math.round(a/60000)+' min')}}if(e.textContent!==t){e.textContent=t;e.hidden=!t}}
-function tick(){stale();var n=new Date(),s=n.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}),hm4=pad(n.getHours())+pad(n.getMinutes());
+function tick(){stale();updRain();var n=new Date(),s=n.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}),hm4=pad(n.getHours())+pad(n.getMinutes());
 setTime(hm4);$('t').setAttribute('aria-label',hm4.slice(0,2)+':'+hm4.slice(2));
 $('d').textContent=s.charAt(0).toUpperCase()+s.slice(1);
 $('sb').style.width=(n.getSeconds()/60*100)+'%'}
@@ -389,6 +420,30 @@ function hm(s){return s.slice(11,16)}
 function mins(s){return Number(s.slice(11,13))*60+Number(s.slice(14,16))}
 function uvLabel(u){return u<3?'faible':(u<6?'modéré':(u<8?'élevé':'très élevé'))}
 
+function tmin(s){return Date.UTC(+s.slice(0,4),+s.slice(5,7)-1,+s.slice(8,10),+s.slice(11,13),+s.slice(14,16))/60000}
+function fmtMin(m){m=Math.max(5,Math.round(m/5)*5);return m>=60?(Math.floor(m/60)+' h'+(m%60?' '+pad(m%60):'')):m+' min'}
+function rainSoon(){
+var m=data&&data.minutely_15;if(!m||!m.time||!m.precipitation||!m.time.length)return null;
+var now=typeof data.utc_offset_seconds==='number'?Date.now()/60000+data.utc_offset_seconds/60:tmin(data.current.time),
+n=m.time.length,cur=-1,i,r={now:false,inMin:null,end:null};
+for(i=0;i<n;i++){if(tmin(m.time[i])>=now){cur=i;break}}
+if(cur<0)return null;
+function wet(k){return (m.precipitation[k]||0)>=0.1}
+if(wet(cur)){r.now=true;for(i=cur+1;i<n;i++){if(!wet(i)){r.end=tmin(m.time[i])-15-now;break}}}
+else{for(i=cur+1;i<n;i++){if(wet(i)){r.inMin=tmin(m.time[i])-15-now;break}}}
+return r}
+function rainText(){
+var r=rainSoon();if(!r)return null;
+var cw=data.current.weather_code,w=(data.current.temperature_2m<=0.5||(cw>=71&&cw<=77)||cw===85||cw===86)?'Neige':'Pluie';
+if(r.now)return w+' en ce moment'+(r.end!=null?' · fin dans '+fmtMin(r.end):'');
+if(r.inMin!=null)return w+' dans '+fmtMin(r.inMin);
+return null}
+var rsLast=null;
+function updRain(){
+var t=data?rainText():null;
+if(t===rsLast)return;rsLast=t;
+var e=$('rs');if(!e)return;
+$('rsT').textContent=t||'';e.hidden=!t}
 function buildSlides(){
 if(!data)return [];
 var d=data.daily,cur=data.current,h=data.hourly,i=hourIdx(),out=[],rain=null,j,k,c,p;
@@ -396,7 +451,8 @@ out.push('Ressenti '+Math.round(cur.apparent_temperature)+'° · Max '+Math.roun
 for(j=0;j<24&&i+j<h.time.length;j++){k=i+j;c=wmo(h.weather_code[k],true).k;p=h.precipitation_probability?h.precipitation_probability[k]:0;
 if(c==='rain'||c==='storm'||c==='snow'||p>=60){rain={j:j,w:c==='snow'?'Neige':(c==='storm'?'Orage':'Pluie'),h:Number(h.time[k].slice(11,13)),tm:h.time[k].slice(0,10)!==h.time[i].slice(0,10)};break}}
 var cw=wmo(cur.weather_code,true).k,nowR=cw==='rain'||cw==='storm'||cw==='snow';
-out.push(nowR?(cw==='snow'?'Neige':(cw==='storm'?'Orage':'Pluie'))+' en ce moment':(rain?rain.w+' prévue '+(rain.tm?'demain ':'')+'vers '+rain.h+' h':'Pas de pluie prévue dans les 24 h'));
+var rt=rainText();
+out.push(rt?rt:nowR?(cw==='snow'?'Neige':(cw==='storm'?'Orage':'Pluie'))+' en ce moment':(rain?rain.w+' prévue '+(rain.tm?'demain ':'')+'vers '+rain.h+' h':'Pas de pluie prévue dans les 24 h'));
 if(d.time.length>1){var tw=wmo(d.weather_code[1],true);out.push('Demain : '+tw.label+' · '+Math.round(d.temperature_2m_min[1])+'° / '+Math.round(d.temperature_2m_max[1])+'°')}
 return out}
 var slT=null;
@@ -442,21 +498,23 @@ $('sr').textContent=hm(sr);$('ss').textContent=hm(ss);
 var f=(mins(cur.time)-mins(sr))/(mins(ss)-mins(sr)),dot=$('sd');
 if(f>=0&&f<=1){var u=1-f,x=u*u*8+2*u*f*70+f*f*132,y=u*u*44+2*u*f*(-16)+f*f*44;dot.setAttribute('cx',x);dot.setAttribute('cy',y);dot.setAttribute('visibility','visible')}else dot.setAttribute('visibility','hidden');
 var n=new Date();$('upd').textContent='mises à jour à '+pad(n.getHours())+':'+pad(n.getMinutes());
-slides=buildSlides();if(fs)showSlide(true);
+slides=buildSlides();if(fs)showSlide(true);rsLast=null;updRain();
 }
 
-function url(){return 'https://api.open-meteo.com/v1/forecast?latitude='+loc.lat+'&longitude='+loc.lon+'&current=temperature_2m,apparent_temperature,relative_humidity_2m,is_day,weather_code,wind_speed_10m,pressure_msl&hourly=temperature_2m,weather_code,precipitation_probability,is_day,uv_index,visibility&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max&timezone=auto&forecast_days=7&wind_speed_unit=kmh'}
+function url(){return 'https://api.open-meteo.com/v1/forecast?latitude='+loc.lat+'&longitude='+loc.lon+'&current=temperature_2m,apparent_temperature,relative_humidity_2m,is_day,weather_code,wind_speed_10m,pressure_msl&hourly=temperature_2m,weather_code,precipitation_probability,is_day,uv_index,visibility&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max'+(noMin?'':'&minutely_15=precipitation&forecast_minutely_15=12&past_minutely_15=0')+'&timezone=auto&forecast_days=7&wind_speed_unit=kmh'}
 function ckey(){return 'mh_cache_'+loc.lat.toFixed(2)+'_'+loc.lon.toFixed(2)}
 function showMsg(t){var m=$('msg');if(t){m.textContent=t;m.hidden=false}else m.hidden=true}
+var manual=false,noMin=false,retryNow=false;
 function load(){
 clearTimeout(loadT);
 var ac=window.AbortController?new AbortController():null,to=setTimeout(function(){if(ac)ac.abort()},12000);
-fetch(url(),ac?{signal:ac.signal}:undefined).then(function(r){if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(function(j){
+fetch(url(),ac?{signal:ac.signal}:undefined).then(function(r){if(!r.ok){if(r.status===400&&!noMin){noMin=true;retryNow=true}throw new Error('http '+r.status)}return r.json()}).then(function(j){
 clearTimeout(to);
 if(!j||!j.current||!j.hourly||!j.daily)throw new Error('format');
-data=j;lastOk=Date.now();ls(ckey(),JSON.stringify(j));showMsg('');render();
+data=j;lastOk=Date.now();ls(ckey(),JSON.stringify(j));showMsg('');render();if(manual){manual=false;toast('Météo actualisée')}
 }).catch(function(){
-clearTimeout(to);
+clearTimeout(to);if(retryNow){retryNow=false;load();return}
+if(manual){manual=false;toast('Actualisation impossible pour le moment')}
 var c=jp(ls(ckey()));
 if(c&&c.current){data=c;render();showMsg('Hors connexion : dernières données enregistrées.')}
 else showMsg('Météo indisponible pour le moment. Nouvel essai dans une minute.');
@@ -471,7 +529,7 @@ function geo(){
 if(!navigator.geolocation){toast('La géolocalisation n\'est pas disponible sur cet appareil.');return}
 toast('Recherche de ta position…');
 navigator.geolocation.getCurrentPosition(function(p){
-var la=p.coords.latitude,lo=p.coords.longitude;
+var la=Math.round(p.coords.latitude*100)/100,lo=Math.round(p.coords.longitude*100)/100;
 setLoc({lat:la,lon:lo,name:'Ma position'});
 fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='+la+'&longitude='+lo+'&localityLanguage=fr').then(function(r){return r.json()}).then(function(j){
 var n=j.city||j.locality||j.principalSubdivision;
@@ -503,6 +561,9 @@ $('mClose').addEventListener('click',closeModal);
 $('modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('modal').hidden)closeModal()});
 $('btnGeo').addEventListener('click',geo);
+(function(){var u=$('upd');u.setAttribute('role','button');u.setAttribute('tabindex','0');u.style.cursor='pointer';u.style.textDecoration='underline';u.title='Actualiser la météo';
+function go(){manual=true;toast('Actualisation…');load()}
+u.addEventListener('click',go);u.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}})})();
 $('mGeo').addEventListener('click',function(){closeModal();geo()});
 $('mHome').addEventListener('click',function(){closeModal();setLoc(DEF)});
 $('idle').value=String(idle);
@@ -578,7 +639,7 @@ else if(n==='keydown'&&ev.key==='Escape')setFs(false)}
 else resetIdle()
 },{passive:true})});
 document.addEventListener('visibilitychange',function(){
-if(!document.hidden){if(fs&&!lock)getLock();if(Date.now()-lastOk>10*60000)load()}});
+if(!document.hidden){if(fs&&!lock)getLock();if(Date.now()-lastOk>2*60000)load()}});
 
 var bg=$('bg'),fgc=$('fgc'),bx=bg.getContext('2d'),fx=fgc.getContext('2d'),Wd=window.innerWidth,Ht=window.innerHeight,dpr=Math.min(window.devicePixelRatio||1,2);
 function buildFore(){

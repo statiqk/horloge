@@ -21,3 +21,14 @@ L'appli est installable (PWA) : menu du navigateur, « Installer l'application �
 ## Mises à jour automatiques
 
 Quand une nouvelle version est publiée, l'appli la détecte toute seule (au retour sur l'appli, au retour du réseau, puis toutes les 5 minutes), affiche « Mise à jour installée. Redémarrage… » et se recharge. Si le mode plein écran était actif, il est rétabli après le redémarrage. Il n'y a rien à faire au moment de publier : un simple commit sur `main` suffit.
+
+## Autonomie et vie privée
+
+- La police (Bricolage Grotesque) et les icônes sont hébergées dans le dépôt (`fonts/`) : aucune requête vers Google ou un CDN, et l'appli s'affiche correctement hors connexion.
+- Les coordonnées de la géolocalisation sont arrondies à 2 décimales (environ 1 km) avant tout envoi à Open-Meteo ou au service de nom de ville.
+- Le service worker ne met en cache que les réponses valides.
+
+## Actualisation et pluie
+
+- Toucher « mises à jour à … » (onglet Détails) force l'actualisation. Un retour sur l'appli après plus de 2 minutes en déclenche une aussi.
+- « Pluie dans X min » / « Pluie en ce moment · fin dans X min » est calculé avec les données par 15 minutes d'Open-Meteo. Il s'affiche sur l'accueil et dans la phrase tournante du plein écran.

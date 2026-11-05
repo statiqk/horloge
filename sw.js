@@ -1,6 +1,7 @@
-var CACHE = 'horloge-v2';
-var SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
-var HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com', 'cdn.jsdelivr.net'];
+var CACHE = 'horloge-v3';
+var SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png',
+  'fonts/bricolage-300.woff2', 'fonts/bricolage-400.woff2', 'fonts/bricolage-500.woff2', 'fonts/tabler-icons.woff2'];
+var HOSTS = [];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(SHELL); }).then(function () { return self.skipWaiting(); }));
@@ -21,8 +22,10 @@ self.addEventListener('fetch', function (e) {
   var isPage = req.mode === 'navigate' || u.pathname.slice(-1) === '/' || u.pathname.slice(-11) === 'index.html';
   if (isPage) {
     e.respondWith(fetch(req, { cache: 'no-cache' }).then(function (res) {
-      var copy = res.clone();
-      caches.open(CACHE).then(function (c) { c.put(req, copy); });
+      if (res && res.ok) {
+        var copy = res.clone();
+        caches.open(CACHE).then(function (c) { c.put(req, copy); });
+      }
       return res;
     }).catch(function () {
       return caches.match(req, { ignoreSearch: true }).then(function (hit) { return hit || caches.match('index.html'); });
@@ -32,7 +35,7 @@ self.addEventListener('fetch', function (e) {
   e.respondWith(caches.open(CACHE).then(function (c) {
     return c.match(req, { ignoreSearch: true }).then(function (hit) {
       var net = fetch(req).then(function (res) {
-        if (res && (res.ok || res.type === 'opaque')) c.put(req, res.clone());
+        if (res && res.ok) c.put(req, res.clone());
         return res;
       }).catch(function () { return hit; });
       return hit || net;
