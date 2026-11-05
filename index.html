@@ -57,10 +57,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 h2{margin:0;font-size:15px;font-weight:500}
 p{margin:0}
 
+@property --fogv{syntax:'<number>';inherits:true;initial-value:0}
 @property --cb{syntax:'<number>';inherits:true;initial-value:1}
 @property --wa{syntax:'<number>';inherits:true;initial-value:0}
 @property --ba{syntax:'<number>';inherits:true;initial-value:0}
-.w{position:fixed;inset:0;overflow:hidden;color:var(--fg);transition:background 1.4s,--cb 2.5s,--wa 8s,--ba 8s;--fg:#fff;--gl:rgba(255,255,255,.14);--cb:1;--sx:74%;--sy:17vh;--m1:#8db4dc;--m2:#4c7f8f;--m3:#1f3d33;--tr:#1f3d33;--mist:rgba(255,235,200,.45)}
+.w{position:fixed;inset:0;overflow:hidden;color:var(--fg);transition:background 1.4s,--cb 2.5s,--wa 8s,--ba 8s,--fogv 6s;--fg:#fff;--gl:rgba(255,255,255,.14);--cb:1;--sx:74%;--sy:17vh;--m1:#8db4dc;--m2:#4c7f8f;--m3:#1f3d33;--tr:#1f3d33;--mist:rgba(255,235,200,.45)}
 .w[data-w=sun]{background:linear-gradient(180deg,#1b5fb9 0%,#3f8fd8 30%,#88c0ea 62%,#d9e6e8 85%,#f4dfc2 100%)}
 .w[data-w=cloud]{--cb:.98;--m1:#9aaebf;--m2:#62807a;--m3:#2f4a40;--tr:#2f4a40;--mist:rgba(235,240,245,.5);background:linear-gradient(180deg,#566f89 0%,#8499ae 50%,#b8c5d1 100%)}
 .w[data-w=rain]{--cb:.62;--m1:#5d7388;--m2:#38534f;--m3:#1c2f2b;--tr:#1c2f2b;--mist:rgba(190,205,220,.5);background:linear-gradient(180deg,#232d3b 0%,#3b4859 50%,#66788a 100%)}
@@ -111,9 +112,15 @@ p{margin:0}
 .ter svg{position:absolute;inset:0;width:100%;height:100%}
 #foreSvg{transform-origin:50% 100%;animation:sway var(--swd,7s) ease-in-out infinite alternate}
 @keyframes sway{from{transform:skewX(calc(var(--lean,0deg) - var(--sa,.3deg))) scaleX(1.03)}to{transform:skewX(calc(var(--lean,0deg) + var(--sa,.3deg))) scaleX(1.03)}}
-.p1{fill:var(--m1)}.p2{fill:var(--m2)}.p3{fill:var(--m3)}.ptr{fill:var(--tr)}
+.p0{fill:var(--m1);opacity:.42}.p1{fill:var(--m1)}.caps{opacity:0;transition:opacity 3s}.w[data-cap="1"] .caps{opacity:.92}.w[data-cap="1"][data-n="1"] .caps{opacity:.35}
+.dcA{fill:var(--dcA,#3f7d3a)}.dcB{fill:var(--dcB,#2f6a35)}.dcA,.dcB{opacity:var(--dco,1)}
+.w[data-w=snow] .dcA,.w[data-w=snow] .dcB{fill:#e9eff6;opacity:1}
+.wet{left:0;right:0;bottom:0;height:17%;background:linear-gradient(180deg,transparent,rgba(190,212,242,.26));opacity:0;transition:opacity 5s}
+.w[data-w=rain] .wet,.w[data-w=storm] .wet{opacity:1}
+.mist2{inset:0;opacity:calc(var(--fogv) * .85);background:linear-gradient(180deg,rgba(214,222,232,0) 0%,rgba(214,222,232,.9) 100%);pointer-events:none}
+.w[data-n="1"] .mist2{background:linear-gradient(180deg,rgba(56,66,108,0) 0%,rgba(56,66,108,.85) 100%)}.p2{fill:var(--m2)}.p3{fill:var(--m3)}.ptr{fill:var(--tr)}
 .ter path{transition:fill 1.4s}
-.fog{left:0;right:0;height:30%;background:linear-gradient(180deg,transparent,var(--mist),transparent)}
+.fog{opacity:calc(.6 + var(--fogv,0) * .4);left:0;right:0;height:30%;background:linear-gradient(180deg,transparent,var(--mist),transparent)}
 .flash{inset:0;background:#fff;opacity:0}
 .vig{inset:0;background:radial-gradient(ellipse at 50% 38%,transparent 52%,rgba(0,0,0,.3) 100%)}
 .grain{inset:0;width:100%;height:100%;opacity:.07;mix-blend-mode:overlay}
@@ -296,12 +303,15 @@ p{margin:0}
 <div class="cld lA"><svg width="2000" height="400"><rect width="2000" height="400" filter="url(#fL)"/></svg></div>
 <div class="cld lB"><svg width="2000" height="400"><rect width="2000" height="400" filter="url(#fM)"/></svg></div>
 <div class="ter">
-<svg viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true"><path class="p1" filter="url(#rough)" d="M-20 130 L100 98 L220 120 L370 66 L500 104 L660 58 L820 100 L1020 84 L1020 300 L-20 300Z"/></svg>
+<svg viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true"><path class="p0" filter="url(#rough)" d="M-20 112 L70 84 L170 104 L290 52 L400 92 L520 44 L610 86 L740 40 L850 82 L940 56 L1020 90 L1020 300 L-20 300Z"/></svg>
+<svg viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true"><path class="p1" filter="url(#rough)" d="M-20 130 L100 98 L220 120 L370 66 L500 104 L660 58 L820 100 L1020 84 L1020 300 L-20 300Z"/><defs><linearGradient id="snowG" gradientUnits="userSpaceOnUse" x1="0" y1="50" x2="0" y2="92"><stop offset="0" stop-color="#f8fbff"/><stop offset=".5" stop-color="#f1f6fc"/><stop offset=".62" stop-color="#e4edf6" stop-opacity=".85"/><stop offset="1" stop-color="#e4edf6" stop-opacity="0"/></linearGradient></defs><path class="caps" filter="url(#rough)" fill="url(#snowG)" d="M-20 130 L100 98 L220 120 L370 66 L500 104 L660 58 L820 100 L1020 84 L1020 300 L-20 300Z"/></svg>
 <div class="fog" style="top:22%"></div>
 <svg viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true"><path class="p2" filter="url(#rough)" d="M-20 178 C100 140 240 162 400 152 C560 142 690 120 850 150 C930 165 960 160 1020 155 L1020 300 L-20 300Z"/></svg>
 <div class="fog" style="top:44%"></div>
-<svg id="foreSvg" viewBox="0 0 380 300" preserveAspectRatio="none" aria-hidden="true"><path id="ground" class="p3" d=""/><path id="trees" class="ptr" d=""/></svg>
+<svg id="foreSvg" viewBox="0 0 380 300" preserveAspectRatio="none" aria-hidden="true"><path id="ground" class="p3" d=""/><path id="dcA" class="dcA" d=""/><path id="dcB" class="dcB" d=""/><path id="trees" class="ptr" d=""/></svg>
+<div class="wet"></div>
 </div>
+<div class="mist2" id="mist2"></div>
 <div class="tint" id="tint"></div>
 <div class="heat"></div>
 <canvas class="cv" id="fgc"></canvas>
@@ -495,6 +505,7 @@ function drawMoon(){var ph=moonPhase(),il=(1-Math.cos(2*Math.PI*ph))/2;
 $('moonD').style.clipPath='path("'+moonPath(ph)+'")';$('mglow').style.opacity=String(.15+.85*il)}
 function updateSky(){
 if(!data||!data.daily||!data.daily.sunrise)return;
+applyLand();
 var d=data.daily,now=nowLoc(),sr=tmin(d.sunrise[0]),ss=tmin(d.sunset[0]),day=now>=sr&&now<ss,f,e=0,wa=0,ba=0,g=.5,
 wf={sun:1,cloud:.75,rain:.35,storm:.2,snow:.5,night:.5}[sceneKey]||.6;
 if(day){f=(now-sr)/(ss-sr);e=Math.sin(Math.PI*f);wa=clamp01(1-Math.min(now-sr,ss-now)/100);
@@ -506,6 +517,18 @@ if(!isNightScene)g=.5;else if(day)g=.5;
 app.style.setProperty('--msx',(12+76*g).toFixed(1)+'%');app.style.setProperty('--msy',(66-52*Math.sin(Math.PI*g)).toFixed(1)+'vh');
 var wA=wa*wf,bA=ba*(isNightScene?.4:wf);app.style.setProperty('--wa',wA.toFixed(3));app.style.setProperty('--ba',bA.toFixed(3));$('tint').style.display=(wA+bA<.015)?'none':'block';
 drawMoon()}
+function shade(hex,f){var n=parseInt(hex.slice(1),16),r=(n>>16)&255,g=(n>>8)&255,b=n&255;return 'rgb('+Math.round(r*f)+','+Math.round(g*f)+','+Math.round(b*f)+')'}
+var PAL={0:['#4b4640','#3d3a38',.5],1:['#4b4640','#3d3a38',.5],2:['#8a8a5a','#6e7a4a',.6],3:['#9ccf72','#f3c1d4',.95],4:['#6fae52','#4f9a46',1],5:['#3f7d3a','#2f6a35',1],6:['#3b7a38','#2c6633',1],7:['#3f7d3a','#35703a',1],8:['#6f8f35','#b0902c',1],9:['#d2781e','#b8461f',1],10:['#a8501f','#7c3a24',.85],11:['#4b4640','#3d3a38',.5]};
+function applyLand(){
+var mo=new Date().getMonth();if(loc.lat<0)mo=(mo+6)%12;
+var p=PAL[mo],f=isNightScene?.3:({sun:1,cloud:.82,rain:.6,storm:.42,snow:1,night:.3}[sceneKey]||.8);
+app.style.setProperty('--dcA',shade(p[0],f));app.style.setProperty('--dcB',shade(p[1],f));app.style.setProperty('--dco',String(p[2]));
+app.setAttribute('data-cap',(mo>=10||mo<=2)?'1':'0')}
+function fogApply(){
+var h=data.hourly,i=hourIdx(),v=h.visibility&&h.visibility[i]!=null?h.visibility[i]:null,c=data.current.weather_code,f=0;
+if(v!=null)f=v<500?1:(v<1500?.8:(v<4000?.5:(v<10000?.22:0)));
+if(c===45||c===48)f=Math.max(f,.75);
+app.style.setProperty('--fogv',String(f))}
 function seasonNow(){var mo=new Date().getMonth(),n=loc.lat>=0,au=n?(mo>=8&&mo<=10):(mo>=2&&mo<=4),sp=n?(mo>=2&&mo<=4):(mo>=8&&mo<=10);return au?'a':(sp?'s':'')}
 function rainIntensity(){
 var c=data&&data.current,s=data?rainSeries():[];
@@ -595,7 +618,7 @@ function render(){
 if(!data)return;
 var cur=data.current,day=cur.is_day===1,w=wmo(cur.weather_code,day),key=w.k,label=w.label,night=!day;
 if(force!=='auto'){key=force;label=KEYS[force][0];night=(force==='night')||night}
-setScene(key,night);windApply();fxClasses();RI=rainIntensity();SEA=seasonNow();
+setScene(key,night);windApply();fogApply();fxClasses();RI=rainIntensity();SEA=seasonNow();
 var d=data.daily,i=hourIdx(),h=data.hourly;
 $('tp').textContent=Math.round(cur.temperature_2m)+'°';
 $('cd').textContent=label;
@@ -783,7 +806,12 @@ for(x=-4;x<W+8;x+=5+R(0,8)){
 var edge=(x<W*.18||x>W*.82);
 h=16+R(0,22)+(edge?20+R(0,22):0);hw=4+h*.17;
 d+='M'+(x-hw)+' '+y+'L'+x+' '+(y-h*.5)+'L'+(x+hw)+' '+y+'ZM'+(x-hw*.75)+' '+(y-h*.25)+'L'+x+' '+(y-h*.8)+'L'+(x+hw*.75)+' '+(y-h*.25)+'ZM'+(x-hw*.5)+' '+(y-h*.5)+'L'+x+' '+(y-h)+'L'+(x+hw*.5)+' '+(y-h*.5)+'Z'}
-$('trees').setAttribute('d',d)}
+$('trees').setAttribute('d',d);
+var da='',db='',cx,cr,cy,ci=0;
+for(cx=-6;cx<W+10;cx+=11+R(0,13)){cr=8+R(0,11);cy=236-cr*.6-R(0,6);
+var seg='M'+(cx-cr)+' '+cy+'a'+cr+' '+cr+' 0 1 0 '+(2*cr)+' 0a'+cr+' '+cr+' 0 1 0 '+(-2*cr)+' 0z';
+if(ci++%2)db+=seg;else da+=seg}
+$('dcA').setAttribute('d',da);$('dcB').setAttribute('d',db)}
 function size(){Wd=window.innerWidth;Ht=window.innerHeight;dpr=(fs&&Wd*Ht>700000)?1:Math.min(window.devicePixelRatio||1,2);[bg,fgc].forEach(function(c){c.width=Wd*dpr;c.height=Ht*dpr});bx.setTransform(dpr,0,0,dpr,0,0);fx.setTransform(dpr,0,0,dpr,0,0)}
 size();buildFore();
 var rt=null;window.addEventListener('resize',function(){size();clearTimeout(rt);rt=setTimeout(buildFore,200)});

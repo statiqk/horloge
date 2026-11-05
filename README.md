@@ -52,3 +52,9 @@ Quand une nouvelle version est publiée, l'appli la détecte toute seule (au ret
 - **Saisons** : feuilles d'automne ou pétales de printemps portés par le vent, par temps clair ou nuageux.
 - **Température** : voile de chaleur au-dessus de 30 °C, givre sur les cartes en dessous de 0 °C.
 - **Transitions** : fondu progressif du ciel, des nuages et du paysage quand la météo change.
+
+## Paysage
+
+- Une chaîne de montagnes lointaine, plus pâle, s'ajoute derrière les sommets, avec une ligne de neige sur les plus hauts de novembre à mars.
+- Des arbres feuillus changent de couleur avec les saisons (blanc de floraison en avril, vert l'été, orange à l'automne, dégarnis l'hiver) et s'assombrissent selon la météo.
+- Le sol brille après la pluie et le brouillard suit la visibilité réelle mesurée (brume dense à moins de 500 m).
