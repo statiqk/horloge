@@ -43,3 +43,12 @@ Quand une nouvelle version est publiée, l'appli la détecte toute seule (au ret
 
 - La phrase tournante du plein écran indique aussi « Coucher du soleil dans 2 h 58 » (ou le lever la nuit) et, la nuit, la phase de la lune avec son éclairement.
 - Quand de la pluie est en cours ou attendue, l'accueil affiche un petit graphique des 2 prochaines heures (un bâton par quart d'heure).
+
+## Animations qui suivent les données réelles
+
+- **Soleil et lune** : ils se déplacent selon l'heure réelle (lever, midi, coucher). Le ciel prend des teintes d'aube, d'heure dorée, de coucher et d'heure bleue. La lune est dessinée avec sa vraie phase.
+- **Vent** : la vitesse des nuages, l'inclinaison de la pluie, la dérive de la neige et le balancement des arbres suivent le vent mesuré.
+- **Pluie** : la densité et la vitesse des gouttes dépendent de l'intensité prévue (bruine, pluie, averse).
+- **Saisons** : feuilles d'automne ou pétales de printemps portés par le vent, par temps clair ou nuageux.
+- **Température** : voile de chaleur au-dessus de 30 °C, givre sur les cartes en dessous de 0 °C.
+- **Transitions** : fondu progressif du ciel, des nuages et du paysage quand la météo change.
