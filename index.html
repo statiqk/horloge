@@ -537,14 +537,15 @@ try{var pr=nsv.play();if(pr&&pr.catch)pr.catch(function(){})}catch(e){}}
 function noSleepOff(){try{if(nsv)nsv.pause()}catch(e){}}
 function getLock(){
 if(!fs)return;
-if(!navigator.wakeLock){noSleepOn();return}
+noSleepOn();
+if(!navigator.wakeLock)return;
 if(lock||lkBusy)return;
 lkBusy=true;
 navigator.wakeLock.request('screen').then(function(l){
-lkBusy=false;lock=l;noSleepOff();
+lkBusy=false;lock=l;
 l.addEventListener('release',function(){if(lock===l)lock=null;if(fs&&!document.hidden)setTimeout(getLock,400)});
 if(!fs)releaseLock()
-}).catch(function(){lkBusy=false;if(fs)noSleepOn()})}
+}).catch(function(){lkBusy=false})}
 function releaseLock(){var l=lock;lock=null;try{if(l)l.release()}catch(e){}noSleepOff()}
 function freeze(){fz=true}
 var OFS=[[0,0],[7,-5],[-6,6],[5,7],[-7,-4],[3,-7],[-4,5],[6,3]],ofi=0;
