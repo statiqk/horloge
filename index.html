@@ -40,6 +40,8 @@
 .ti-moon-stars:before{content:"\ece7"}
 .ti-settings:before{content:"\eb20"}
 .ti-snowflake:before{content:"\ec0b"}
+.ti-flower:before{content:"\eff6"}
+.ti-leaf:before{content:"\ed4f"}
 .ti-sun:before{content:"\eb30"}
 .ti-sun-high:before{content:"\f236"}
 .ti-sunset-2:before{content:"\f23a"}
@@ -166,6 +168,8 @@ p{margin:0}
 .tile{padding:14px 16px;font-size:13px}
 .tile span{display:flex;align-items:center;gap:6px}
 .tile i{font-size:18px}
+.tile[hidden]{display:none}
+.tile small{display:block;opacity:.8;margin-top:2px;font-size:12px}
 .tile b{display:block;font-weight:500;font-size:22px;margin-top:6px}
 .sunc span{display:flex;align-items:center;gap:6px;font-size:13px}
 .sunc svg{display:block;width:100%;height:auto;margin-top:6px}
@@ -246,6 +250,8 @@ p{margin:0}
 .w.fs{cursor:none}
 .dim{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity 2.5s;z-index:4}
 .w.frozen .dim{opacity:var(--dim,.4)}
+.w.nightdim .dim{opacity:var(--nd,.5)}
+.w.nightdim.frozen .dim{opacity:max(var(--dim,.4),var(--nd,.5))}
 .w.frozen #home{transform:translate(var(--ox,0px),var(--oy,0px))}
 .w.frozen .cld,.w.frozen .birds span,.w.frozen .birds svg{animation-play-state:paused}
 @media (prefers-reduced-motion:reduce){.cld,.birds span,.birds svg,.cn,.dg i{animation:none}.dg i.out{display:none}}
@@ -318,6 +324,8 @@ p{margin:0}
 <div class="glass tile"><span><i class="ti ti-gauge" aria-hidden="true"></i>Pression</span><b id="tP">--</b></div>
 <div class="glass tile"><span><i class="ti ti-eye" aria-hidden="true"></i>Visibilité</span><b id="tV">--</b></div>
 <div class="glass tile"><span><i class="ti ti-umbrella" aria-hidden="true"></i>Pluie</span><b id="tR">--</b></div>
+<div class="glass tile" id="tileAir" hidden><span><i class="ti ti-leaf" aria-hidden="true"></i>Qualité de l'air</span><b id="tA">--</b><small id="tAs"></small></div>
+<div class="glass tile" id="tilePol" hidden><span><i class="ti ti-flower" aria-hidden="true"></i>Pollens</span><b id="tPo">--</b><small id="tPos"></small></div>
 </div>
 <div class="glass card sunc"><span><i class="ti ti-sunset-2" aria-hidden="true"></i>Soleil</span>
 <svg viewBox="0 0 140 52" aria-hidden="true"><line class="hz" x1="0" y1="44" x2="140" y2="44"/><path class="arc" d="M8 44 Q70 -16 132 44"/><circle id="sd" r="6" cx="8" cy="44" fill="#ffd45c" visibility="hidden"/></svg>
@@ -347,6 +355,10 @@ p{margin:0}
 <select id="idle"><option value="30000">30 secondes</option><option value="60000">1 minute</option><option value="300000">5 minutes</option><option value="0">Jamais</option></select>
 <label for="dimSel" style="font-size:13px;opacity:.8;display:block;margin:14px 0 6px">Veille douce (après 3 min sans toucher)</label>
 <select id="dimSel"><option value="0">Désactivée</option><option value="0.25">Légère</option><option value="0.4">Moyenne</option><option value="0.6">Forte</option></select>
+<label for="nightSel" style="font-size:13px;opacity:.8;display:block;margin:14px 0 6px">Mode nuit en plein écran (du coucher au lever du soleil)</label>
+<select id="nightSel"><option value="0">Désactivé</option><option value="0.3">Léger</option><option value="0.5">Moyen</option><option value="0.7">Fort</option></select>
+<label for="startSel" style="font-size:13px;opacity:.8;display:block;margin:14px 0 6px">Au lancement de l'appli</label>
+<select id="startSel"><option value="0">Affichage normal</option><option value="1">Plein écran directement</option></select>
 <h4>Démo</h4>
 <label for="force" style="font-size:13px;opacity:.8;display:block;margin-bottom:6px">Forcer l'ambiance</label>
 <select id="force"><option value="auto">Météo réelle</option><option value="sun">Soleil</option><option value="cloud">Nuages</option><option value="rain">Pluie</option><option value="storm">Orage</option><option value="snow">Neige</option><option value="night">Nuit</option></select>
@@ -371,6 +383,7 @@ function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
 var loc=jp(ls('mh_loc'))||DEF;
 if(typeof loc.lat!=='number'||typeof loc.lon!=='number')loc=DEF;
 var force=ls('mh_force')||'auto';
+var nightLv=ls('mh_night')!==null?ls('mh_night'):'0.5',startFs=ls('mh_start')==='1',air=null,airAt=0;
 var dimLv=ls('mh_dim')!==null?ls('mh_dim'):'0.4';
 var idle=ls('mh_idle')!==null?Number(ls('mh_idle')):60000;
 var slides=[],si=0,sT=null,lastTap=0,exitAt=0;
@@ -410,7 +423,12 @@ ni.textContent=ch;ni.className=(first?'':'in')+(ch==='1'?' one':'');
 if(old){old.className='out'+(old.classList.contains('one')?' one':'');(function(o){setTimeout(function(){if(o.parentNode)o.parentNode.removeChild(o)},520)})(old)}
 sl.appendChild(ni);if(k===3&&!first)shiftNow()}}
 function stale(){var e=$('stale'),t='';if(fs&&data){var a=lastOk?Date.now()-lastOk:0;if(!lastOk)t='Hors connexion';else if(a>30*60000){var h=Math.floor(a/3600000);t='Données de il y a '+(h>=1?h+' h':Math.round(a/60000)+' min')}}if(e.textContent!==t){e.textContent=t;e.hidden=!t}}
-function tick(){stale();updRain();var n=new Date(),s=n.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}),hm4=pad(n.getHours())+pad(n.getMinutes());
+function isNightNow(){
+if(!data||!data.daily||!data.daily.sunrise)return false;
+if(typeof data.utc_offset_seconds==='number'){var now=Date.now()/60000+data.utc_offset_seconds/60;return now<tmin(data.daily.sunrise[0])||now>=tmin(data.daily.sunset[0])}
+return data.current.is_day===0}
+function applyNight(){var on=fs&&Number(nightLv)>0&&isNightNow();if(app.classList.contains('nightdim')!==on)app.classList.toggle('nightdim',on)}
+function tick(){stale();updRain();applyNight();var n=new Date(),s=n.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}),hm4=pad(n.getHours())+pad(n.getMinutes());
 setTime(hm4);$('t').setAttribute('aria-label',hm4.slice(0,2)+':'+hm4.slice(2));
 $('d').textContent=s.charAt(0).toUpperCase()+s.slice(1);
 $('sb').style.width=(n.getSeconds()/60*100)+'%'}
@@ -444,6 +462,21 @@ var t=data?rainText():null;
 if(t===rsLast)return;rsLast=t;
 var e=$('rs');if(!e)return;
 $('rsT').textContent=t||'';e.hidden=!t}
+function aqiLabel(v){return v<20?'Bon':(v<40?'Correct':(v<60?'Moyen':(v<80?'Mauvais':(v<100?'Très mauvais':'Extrême'))))}
+function polLabel(v){return v<10?'faible':(v<50?'modéré':(v<200?'élevé':'très élevé'))}
+var POL=[['alder_pollen','aulne'],['birch_pollen','bouleau'],['grass_pollen','graminées'],['mugwort_pollen','armoise'],['olive_pollen','olivier'],['ragweed_pollen','ambroisie']];
+function renderAir(){
+var a=air&&air.current;if(!a){$('tileAir').hidden=true;$('tilePol').hidden=true;return}
+if(a.european_aqi!=null){$('tA').textContent=aqiLabel(a.european_aqi)+' · '+Math.round(a.european_aqi);
+$('tAs').textContent='PM2,5 '+(a.pm2_5!=null?Math.round(a.pm2_5):'--')+' · PM10 '+(a.pm10!=null?Math.round(a.pm10):'--')+' µg/m³';$('tileAir').hidden=false}else $('tileAir').hidden=true;
+var best=null,any=false;
+POL.forEach(function(p){var v=a[p[0]];if(v!=null){any=true;if(v>0&&(!best||v>best.v))best={v:v,n:p[1]}}});
+if(any){$('tPo').textContent=best?(polLabel(best.v)+' · '+best.n):'Aucun';$('tPos').textContent=best?Math.round(best.v)+' grains/m³ (indicatif)':'Hors saison ou non détecté';$('tilePol').hidden=false}else $('tilePol').hidden=true}
+function loadAir(){
+if(Date.now()-airAt<30*60000)return;
+airAt=Date.now();
+var ac=window.AbortController?new AbortController():null,to=setTimeout(function(){if(ac)ac.abort()},12000);
+fetch('https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+loc.lat+'&longitude='+loc.lon+'&current=european_aqi,pm10,pm2_5,alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&timezone=auto',ac?{signal:ac.signal}:undefined).then(function(r){if(!r.ok)throw new Error('http');return r.json()}).then(function(j){clearTimeout(to);air=j;renderAir()}).catch(function(){clearTimeout(to);airAt=Date.now()-25*60000;air=null;renderAir()})}
 function buildSlides(){
 if(!data)return [];
 var d=data.daily,cur=data.current,h=data.hourly,i=hourIdx(),out=[],rain=null,j,k,c,p;
@@ -511,7 +544,7 @@ var ac=window.AbortController?new AbortController():null,to=setTimeout(function(
 fetch(url(),ac?{signal:ac.signal}:undefined).then(function(r){if(!r.ok){if(r.status===400&&!noMin){noMin=true;retryNow=true}throw new Error('http '+r.status)}return r.json()}).then(function(j){
 clearTimeout(to);
 if(!j||!j.current||!j.hourly||!j.daily)throw new Error('format');
-data=j;lastOk=Date.now();ls(ckey(),JSON.stringify(j));showMsg('');render();if(manual){manual=false;toast('Météo actualisée')}
+data=j;lastOk=Date.now();ls(ckey(),JSON.stringify(j));showMsg('');render();loadAir();if(manual){manual=false;toast('Météo actualisée')}
 }).catch(function(){
 clearTimeout(to);if(retryNow){retryNow=false;load();return}
 if(manual){manual=false;toast('Actualisation impossible pour le moment')}
@@ -523,7 +556,7 @@ loadT=setTimeout(load,60000);
 }
 setInterval(function(){if(Date.now()-lastOk>14*60000)load()},60000);
 
-function setLoc(l){loc=l;ls('mh_loc',JSON.stringify(l));$('city').textContent=l.name;$('mLoc').textContent=l.name;data=null;load()}
+function setLoc(l){loc=l;air=null;airAt=0;renderAir();ls('mh_loc',JSON.stringify(l));$('city').textContent=l.name;$('mLoc').textContent=l.name;data=null;load()}
 function toast(t){var e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove('show')},3800)}
 function geo(){
 if(!navigator.geolocation){toast('La géolocalisation n\'est pas disponible sur cet appareil.');return}
@@ -571,6 +604,11 @@ if($('idle').value!==String(idle)){idle=60000;$('idle').value='60000'}
 $('dimSel').value=dimLv;if($('dimSel').value!==dimLv){dimLv='0.4';$('dimSel').value=dimLv}
 app.style.setProperty('--dim',dimLv);
 $('dimSel').addEventListener('change',function(){dimLv=this.value;ls('mh_dim',dimLv);app.style.setProperty('--dim',dimLv);if(!Number(dimLv)){app.style.removeProperty('--ox');app.style.removeProperty('--oy')}});
+$('nightSel').value=nightLv;if($('nightSel').value!==nightLv){nightLv='0.5';$('nightSel').value=nightLv}
+app.style.setProperty('--nd',nightLv);
+$('nightSel').addEventListener('change',function(){nightLv=this.value;ls('mh_night',nightLv);app.style.setProperty('--nd',nightLv);applyNight()});
+$('startSel').value=startFs?'1':'0';
+$('startSel').addEventListener('change',function(){startFs=this.value==='1';ls('mh_start',startFs?'1':'0')});
 $('idle').addEventListener('change',function(){idle=Number(this.value);ls('mh_idle',String(idle));resetIdle()});
 $('force').value=force;
 $('force').addEventListener('change',function(){force=this.value;ls('mh_force',force);if(data)render();else{setScene(force==='auto'?sceneKey:force,false)}});
@@ -616,7 +654,7 @@ function unfreeze(){fz=false;if(!frozen)return;app.style.removeProperty('--ox');
 function armFreeze(){clearTimeout(frT);if(fs)frT=setTimeout(freeze,FREEZE_MS)}
 function showHint(){var h=$('hint');h.classList.remove('show');void h.offsetWidth;h.classList.add('show')}
 function setFs(on){
-fs=on;app.classList.toggle('fs',on);
+fs=on;app.classList.toggle('fs',on);applyNight();
 $('btnFs').firstChild.className='ti '+(on?'ti-arrows-minimize':'ti-arrows-maximize');
 if(on){showHint();getLock();startSlides();armFreeze()}
 else{$('hint').classList.remove('show');stopSlides();clearTimeout(frT);unfreeze();exitAt=Date.now();releaseLock();if(nat&&document.fullscreenElement){nat=false;try{document.exitFullscreen()}catch(e){}}nat=false}
@@ -729,7 +767,9 @@ if('serviceWorker' in navigator){
 var hadCtl=!!navigator.serviceWorker.controller;
 navigator.serviceWorker.addEventListener('controllerchange',function(){if(hadCtl)applyUpdate()});
 window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(reg){setInterval(function(){reg.update().catch(function(){})},300000)}).catch(function(){})})}}
-try{if(sessionStorage.getItem('mh_fs')==='1'){sessionStorage.removeItem('mh_fs');setFs(true)}}catch(e){}
+try{var ssf=sessionStorage.getItem('mh_fs');
+if(ssf==='1'){sessionStorage.removeItem('mh_fs');setFs(true)}
+else if(ssf===null&&(startFs||/[?&]fs=1\b/.test(location.search)))setFs(true)}catch(e){}
 })();
 </script>
 </body>

@@ -32,3 +32,9 @@ Quand une nouvelle version est publiée, l'appli la détecte toute seule (au ret
 
 - Toucher « mises à jour à … » (onglet Détails) force l'actualisation. Un retour sur l'appli après plus de 2 minutes en déclenche une aussi.
 - « Pluie dans X min » / « Pluie en ce moment · fin dans X min » est calculé avec les données par 15 minutes d'Open-Meteo. Il s'affiche sur l'accueil et dans la phrase tournante du plein écran.
+
+## Mode nuit, air, lancement direct
+
+- **Mode nuit** : en plein écran, entre le coucher et le lever du soleil, l'écran s'assombrit (réglable ou désactivable dans les réglages).
+- **Qualité de l'air et pollens** : deux tuiles dans l'onglet Détails (indice européen, PM2,5 / PM10, pollens en saison), via Open-Meteo.
+- **Lancement en plein écran** : réglage « Au lancement de l'appli », ou lien `https://statiqk.github.io/horloge/?fs=1`. Sur Android, un appui long sur l'icône propose aussi « Plein écran ».
